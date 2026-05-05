@@ -200,3 +200,4 @@ C:\Users\bechi\RecetteApp\obj\Debug\net10.0\refint\RecetteApp.dll
 C:\Users\bechi\RecetteApp\obj\Debug\net10.0\RecetteApp.pdb
 C:\Users\bechi\RecetteApp\obj\Debug\net10.0\RecetteApp.genruntimeconfig.cache
 C:\Users\bechi\RecetteApp\obj\Debug\net10.0\ref\RecetteApp.dll
+C:\Users\bechi\RecetteApp\obj\Debug\net10.0\RecetteApp.sourcelink.json
