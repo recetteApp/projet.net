@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\bechi\\RecetteApp\\RecetteApp.csproj": {}
+    "c:\\Users\\BYR GAMER\\projet.net\\RecetteApp.csproj": {}
   },
   "projects": {
-    "C:\\Users\\bechi\\RecetteApp\\RecetteApp.csproj": {
+    "c:\\Users\\BYR GAMER\\projet.net\\RecetteApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\bechi\\RecetteApp\\RecetteApp.csproj",
+        "projectUniqueName": "c:\\Users\\BYR GAMER\\projet.net\\RecetteApp.csproj",
         "projectName": "RecetteApp",
-        "projectPath": "C:\\Users\\bechi\\RecetteApp\\RecetteApp.csproj",
-        "packagesPath": "C:\\Users\\bechi\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\bechi\\RecetteApp\\obj\\",
+        "projectPath": "c:\\Users\\BYR GAMER\\projet.net\\RecetteApp.csproj",
+        "packagesPath": "C:\\Users\\BYR GAMER\\.nuget\\packages\\",
+        "outputPath": "c:\\Users\\BYR GAMER\\projet.net\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\bechi\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\BYR GAMER\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
@@ -38,7 +38,7 @@
           "auditLevel": "low",
           "auditMode": "all"
         },
-        "SdkAnalysisLevel": "10.0.200"
+        "SdkAnalysisLevel": "10.0.100"
       },
       "frameworks": {
         "net10.0": {
@@ -53,6 +53,10 @@
             "Microsoft.EntityFrameworkCore.Design": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
+              "target": "Package",
+              "version": "[10.0.7, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
               "version": "[10.0.7, )"
             },
@@ -86,7 +90,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.203/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.107/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.AspNetCore": "(,10.0.32767]",
             "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",
