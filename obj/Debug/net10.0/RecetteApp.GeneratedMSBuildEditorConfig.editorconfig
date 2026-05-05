@@ -34,8 +34,20 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xBcHAucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
+[c:/Users/BYR GAMER/projet.net/Components/Pages/AddSensor.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBZGRTZW5zb3IucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
 [c:/Users/BYR GAMER/projet.net/Components/Pages/Counter.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xDb3VudGVyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/BYR GAMER/projet.net/Components/Pages/Dashboard.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xEYXNoYm9hcmQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/BYR GAMER/projet.net/Components/Pages/EditSensor.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xFZGl0U2Vuc29yLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
 [c:/Users/BYR GAMER/projet.net/Components/Pages/Error.razor]
@@ -46,8 +58,24 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xIb21lLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
+[c:/Users/BYR GAMER/projet.net/Components/Pages/Ingredients.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xJbmdyZWRpZW50cy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/BYR GAMER/projet.net/Components/Pages/Login.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xMb2dpbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
 [c:/Users/BYR GAMER/projet.net/Components/Pages/NotFound.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xOb3RGb3VuZC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/BYR GAMER/projet.net/Components/Pages/Recettes.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xSZWNldHRlcy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[c:/Users/BYR GAMER/projet.net/Components/Pages/Register.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xSZWdpc3Rlci5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
 [c:/Users/BYR GAMER/projet.net/Components/Pages/Weather.razor]
