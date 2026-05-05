@@ -1,0 +1,93 @@
+@page "/"
+@using RecetteApp.Services
+@using RecetteApp.Components.UI
+@inject IRecetteService Svc
+@rendermode InteractiveServer
+
+<PageTitle>Dashboard – RecetteApp</PageTitle>
+
+<div class="page-header">
+    <div>
+        <h1>📊 Dashboard</h1>
+        <p class="subtitle">Vue d'ensemble de vos recettes</p>
+    </div>
+</div>
+
+@if (_stats is null)
+{
+    <div class="loading">Chargement...</div>
+}
+else
+{
+    <div class="stats-grid">
+        <KpiCard Value="@_stats.TotalRecettes.ToString()"    Label="Recettes"           Icon="📖" Color="blue"   />
+        <KpiCard Value="@_stats.TotalIngredients.ToString()" Label="Ingrédients"        Icon="🥕" Color="green"  />
+        <KpiCard Value="@_stats.MoyenneCalories.ToString("F0") kcal" Label="Moy. calorique" Icon="🔥" Color="orange" />
+        <KpiCard Value="@_stats.RecetteTop"                   Label="Recette top"        Icon="🏆" Color="red"    />
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="card">
+            <h2>🏆 Top 5 recettes caloriques</h2>
+            @if (_top.Any())
+            {
+                <RecetteTable Recettes="_top"
+                              OnVoir="id => Nav.NavigateTo($@"/recettes/{id}")"
+                              OnSupprimer="Supprimer" />
+            }
+            else { <p class="empty">Aucune recette.</p> }
+        </div>
+
+        <div class="card">
+            <h2>📂 Par catégorie</h2>
+            @foreach (var kv in _parCat)
+            {
+                <div class="bar-row">
+                    <span class="bar-label">@kv.Key</span>
+                    <div class="bar-track">
+                        <div class="bar-fill" style="width:@(kv.Value * 100 / Math.Max(_parCat.Values.Max(),1))%"></div>
+                    </div>
+                    <span class="bar-count">@kv.Value</span>
+                </div>
+            }
+        </div>
+
+        <div class="card">
+            <h2>🌍 Par type de cuisine</h2>
+            @foreach (var kv in _parCuisine)
+            {
+                <div class="bar-row">
+                    <span class="bar-label">@kv.Key</span>
+                    <div class="bar-track">
+                        <div class="bar-fill cuisine" style="width:@(kv.Value * 100 / Math.Max(_parCuisine.Values.Max(),1))%"></div>
+                    </div>
+                    <span class="bar-count">@kv.Value</span>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Inject] NavigationManager Nav { get; set; } = null!;
+
+    private StatistiquesGlobales?       _stats     = null;
+    private List<RecetteApp.Models.Recette> _top    = new();
+    private Dictionary<string, int>     _parCat    = new();
+    private Dictionary<string, int>     _parCuisine = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _stats      = await Svc.GetStatsAsync();
+        _top        = await Svc.TopCaloriquesAsync(5);
+        _parCat     = await Svc.RepartitionCategorieAsync();
+        _parCuisine = await Svc.RepartitionTypeCuisineAsync();
+    }
+
+    async Task Supprimer(int id)
+    {
+        await Svc.DeleteRecetteAsync(id);
+        _top    = await Svc.TopCaloriquesAsync(5);
+        _stats  = await Svc.GetStatsAsync();
+    }
+}

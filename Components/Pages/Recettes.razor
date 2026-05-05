@@ -1,0 +1,84 @@
+@page "/recettes"
+@using RecetteApp.Models
+@using RecetteApp.Services
+@using RecetteApp.Components.UI
+@inject IRecetteService   Svc
+@inject NavigationManager Nav
+@rendermode InteractiveServer
+
+<PageTitle>Recettes – RecetteApp</PageTitle>
+
+<div class="page-header">
+    <h1>📖 Recettes</h1>
+    <button class="btn btn-primary" @onclick='() => Nav.NavigateTo("/recettes/new")'>+ Nouvelle recette</button>
+</div>
+
+<div class="filters card">
+    <input class="form-input" placeholder="🔍 Rechercher..." @bind="_recherche" @oninput="Filtrer" />
+    <select class="form-select" @bind="_filtreCategorie" @bind:after="Filtrer">
+        <option value="0">Toutes catégories</option>
+        @foreach (var c in _categories)
+        { <option value="@c.Id">@c.Nom</option> }
+    </select>
+    <select class="form-select" @bind="_filtreCuisine" @bind:after="Filtrer">
+        <option value="0">Tous types</option>
+        @foreach (var t in _types)
+        { <option value="@t.Id">@t.Nom</option> }
+    </select>
+</div>
+
+@if (_filtrees.Any())
+{
+    <div class="recettes-grid">
+        @foreach (var r in _filtrees)
+        {
+            <RecetteCard Recette="r" OnSupprimer="Supprimer" />
+        }
+    </div>
+}
+else
+{
+    <div class="empty-state">
+        <p>Aucune recette trouvée.</p>
+        <button class="btn btn-primary" @onclick='() => Nav.NavigateTo("/recettes/new")'>
+            Créer la première recette
+        </button>
+    </div>
+}
+
+@code {
+    private List<Recette>    _toutes     = new();
+    private List<Recette>    _filtrees   = new();
+    private List<Categorie>  _categories = new();
+    private List<TypeCuisine>_types      = new();
+    private string _recherche       = "";
+    private int    _filtreCategorie = 0;
+    private int    _filtreCuisine   = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _toutes     = await Svc.GetAllRecettesAsync();
+        _categories = await Svc.GetAllCategoriesAsync();
+        _types      = await Svc.GetAllTypesCuisineAsync();
+        Filtrer();
+    }
+
+    void Filtrer()
+    {
+        _filtrees = _toutes
+            .Where(r =>
+                (string.IsNullOrEmpty(_recherche) ||
+                 r.Titre.Contains(_recherche, StringComparison.OrdinalIgnoreCase) ||
+                 r.Description.Contains(_recherche, StringComparison.OrdinalIgnoreCase)) &&
+                (_filtreCategorie == 0 || r.CategorieId == _filtreCategorie) &&
+                (_filtreCuisine   == 0 || r.TypeCuisineId == _filtreCuisine))
+            .ToList();
+    }
+
+    async Task Supprimer(int id)
+    {
+        await Svc.DeleteRecetteAsync(id);
+        _toutes = await Svc.GetAllRecettesAsync();
+        Filtrer();
+    }
+}

@@ -1,0 +1,87 @@
+@* Renommé AddRecette dans ce contexte – alias pour compatibilité *@
+@page "/recettes/new"
+@using RecetteApp.Models
+@using RecetteApp.Services
+@inject IRecetteService    Svc
+@inject NavigationManager  Nav
+@rendermode InteractiveServer
+
+<PageTitle>Nouvelle recette – RecetteApp</PageTitle>
+
+<div class="page-header">
+    <h1>✨ Nouvelle recette</h1>
+    <button class="btn btn-secondary" @onclick='() => Nav.NavigateTo("/recettes")'>← Retour</button>
+</div>
+
+<div class="card form-card">
+    <h2>Informations générales</h2>
+
+    @if (!string.IsNullOrEmpty(_message))
+    {
+        <div class="alert @(_success ? "alert-success" : "alert-danger")">@_message</div>
+    }
+
+    <div class="form-grid">
+        <div class="form-group">
+            <label>Titre *</label>
+            <input class="form-input" @bind="_recette.Titre" placeholder="Nom de la recette" />
+        </div>
+        <div class="form-group">
+            <label>Nombre de personnes</label>
+            <input class="form-input" type="number" min="1" max="100" @bind="_recette.NbPersonnes" />
+        </div>
+        <div class="form-group">
+            <label>Catégorie *</label>
+            <select class="form-select" @bind="_recette.CategorieId">
+                <option value="0">-- Choisir --</option>
+                @foreach (var c in _categories)
+                { <option value="@c.Id">@c.Nom</option> }
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Type de cuisine *</label>
+            <select class="form-select" @bind="_recette.TypeCuisineId">
+                <option value="0">-- Choisir --</option>
+                @foreach (var t in _types)
+                { <option value="@t.Id">@t.Nom</option> }
+            </select>
+        </div>
+        <div class="form-group full">
+            <label>Description</label>
+            <textarea class="form-input" rows="3" @bind="_recette.Description"></textarea>
+        </div>
+        <div class="form-group full">
+            <label>Étapes de préparation</label>
+            <textarea class="form-input" rows="6" @bind="_recette.Etapes" placeholder="1. Étape..."></textarea>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button class="btn btn-primary" @onclick="Sauvegarder">💾 Créer la recette</button>
+        <button class="btn btn-secondary" @onclick='() => Nav.NavigateTo("/recettes")'>Annuler</button>
+    </div>
+</div>
+
+@code {
+    private Recette           _recette    = new() { NbPersonnes = 4, DateCreation = DateTime.Now };
+    private List<Categorie>   _categories = new();
+    private List<TypeCuisine> _types      = new();
+    private string _message = "";
+    private bool   _success = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _categories = await Svc.GetAllCategoriesAsync();
+        _types      = await Svc.GetAllTypesCuisineAsync();
+    }
+
+    async Task Sauvegarder()
+    {
+        if (string.IsNullOrWhiteSpace(_recette.Titre) ||
+            _recette.CategorieId == 0 || _recette.TypeCuisineId == 0)
+        { _message = "Veuillez remplir tous les champs obligatoires."; _success = false; return; }
+
+        var created = await Svc.CreateRecetteAsync(_recette);
+        Nav.NavigateTo($"/recettes/{created.Id}");
+    }
+}

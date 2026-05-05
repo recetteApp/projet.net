@@ -1,0 +1,126 @@
+@page "/ingredients"
+@using RecetteApp.Models
+@using RecetteApp.Services
+@inject IRecetteService Svc
+@rendermode InteractiveServer
+
+<PageTitle>Ingrédients – RecetteApp</PageTitle>
+
+<div class="page-header">
+    <h1>🥕 Ingrédients</h1>
+    <button class="btn btn-primary" @onclick="Nouveau">+ Nouvel ingrédient</button>
+</div>
+
+<div class="filters card">
+    <input class="form-input" placeholder="🔍 Rechercher..." @bind="_recherche" @oninput="Filtrer" />
+</div>
+
+@if (_enEdition)
+{
+    <div class="card form-card">
+        <h2>@(_edit!.Id == 0 ? "Nouvel ingrédient" : "Modifier")</h2>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Nom *</label>
+                <input class="form-input" @bind="_edit.Nom" placeholder="ex: Farine" />
+            </div>
+            <div class="form-group">
+                <label>Unité *</label>
+                <select class="form-select" @bind="_edit.Unite">
+                    <option value="">-- Unité --</option>
+                    <option value="g">g</option><option value="kg">kg</option>
+                    <option value="ml">ml</option><option value="l">l</option>
+                    <option value="pièce">pièce</option><option value="gousse">gousse</option>
+                    <option value="cuillère">cuillère</option><option value="tasse">tasse</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Kcal / unité *</label>
+                <input class="form-input" type="number" step="0.01" min="0" @bind="_edit.CaloriesParUnite" />
+            </div>
+        </div>
+        @if (!string.IsNullOrEmpty(_msg))
+        { <div class="alert @(_ok ? "alert-success" : "alert-danger")">@_msg</div> }
+        <div class="form-actions">
+            <button class="btn btn-primary" @onclick="Sauvegarder">💾 Sauvegarder</button>
+            <button class="btn btn-secondary" @onclick="Annuler">Annuler</button>
+        </div>
+    </div>
+}
+
+<div class="card">
+    <table class="table">
+        <thead>
+            <tr>
+                <th @onclick='() => Trier("Nom")'      class="sortable">Nom @SortIcon("Nom")</th>
+                <th @onclick='() => Trier("Unite")'    class="sortable">Unité @SortIcon("Unite")</th>
+                <th @onclick='() => Trier("Calories")' class="sortable">Kcal/unité @SortIcon("Calories")</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var i in _filtres)
+            {
+                <tr>
+                    <td><strong>@i.Nom</strong></td>
+                    <td><span class="badge">@i.Unite</span></td>
+                    <td>
+                        <div class="cal-bar-row">
+                            <span>@i.CaloriesParUnite.ToString("F2")</span>
+                            <div class="cal-mini-bar" style="width:@(Math.Min(i.CaloriesParUnite * 8, 80))px"></div>
+                        </div>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-secondary" @onclick="() => Editer(i)">✏️</button>
+                        <button class="btn btn-sm btn-danger"    @onclick="() => Supprimer(i.Id)">🗑️</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div class="table-footer">@_filtres.Count ingrédient(s)</div>
+</div>
+
+@code {
+    private List<Ingredient> _tous    = new();
+    private List<Ingredient> _filtres = new();
+    private Ingredient? _edit;
+    private bool   _enEdition = false;
+    private string _recherche = "";
+    private string _msg = ""; private bool _ok = false;
+    private string _sortCol = "Nom"; private bool _sortAsc = true;
+
+    protected override async Task OnInitializedAsync() => await Recharger();
+
+    async Task Recharger() { _tous = await Svc.GetAllIngredientsAsync(); Filtrer(); }
+
+    void Filtrer()
+    {
+        var q = _tous.Where(i => string.IsNullOrEmpty(_recherche) ||
+            i.Nom.Contains(_recherche, StringComparison.OrdinalIgnoreCase));
+        _filtres = (_sortCol switch {
+            "Unite"    => _sortAsc ? q.OrderBy(i=>i.Unite)            : q.OrderByDescending(i=>i.Unite),
+            "Calories" => _sortAsc ? q.OrderBy(i=>i.CaloriesParUnite) : q.OrderByDescending(i=>i.CaloriesParUnite),
+            _          => _sortAsc ? q.OrderBy(i=>i.Nom)              : q.OrderByDescending(i=>i.Nom)
+        }).ToList();
+    }
+
+    void Trier(string col) { if (_sortCol==col) _sortAsc=!_sortAsc; else{_sortCol=col;_sortAsc=true;} Filtrer(); }
+    string SortIcon(string col) => _sortCol!=col?"":_sortAsc?"▲":"▼";
+
+    void Nouveau()  { _edit = new Ingredient(); _enEdition = true; _msg = ""; }
+    void Editer(Ingredient i) { _edit = new Ingredient { Id=i.Id, Nom=i.Nom, Unite=i.Unite, CaloriesParUnite=i.CaloriesParUnite }; _enEdition=true; _msg=""; }
+    void Annuler()  { _enEdition=false; _edit=null; _msg=""; }
+
+    async Task Sauvegarder()
+    {
+        if (string.IsNullOrWhiteSpace(_edit!.Nom)||string.IsNullOrWhiteSpace(_edit.Unite))
+        { _msg="Nom et unité obligatoires."; _ok=false; return; }
+        if (_edit.Id==0) await Svc.CreateIngredientAsync(_edit);
+        else             await Svc.UpdateIngredientAsync(_edit);
+        _msg="Ingrédient sauvegardé."; _ok=true;
+        await Recharger(); _enEdition=false;
+    }
+
+    async Task Supprimer(int id) { await Svc.DeleteIngredientAsync(id); await Recharger(); }
+}
