@@ -1,21 +1,49 @@
+<!-- Components/UI/RecetteCard.razor -->
 @using Microsoft.AspNetCore.Components
 @using RecetteApp.Models
 @namespace RecetteApp.Components.UI
 
-<div class="recette-card card">
+<div class="card text-white bg-primary h-100">
     <div class="card-body">
-        <div class="card-title">@Recette.Titre</div>
-        <div class="card-subtitle">@Recette.Categorie?.Nom ?? "Catégorie inconnue"</div>
-        <p>@Recette.Description</p>
-        <div class="recette-meta">
-            <span>@Recette.NbPersonnes personnes</span>
-            <span>@Recette.GetCaloriesParPersonne().ToString("F0") kcal / pers</span>
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h5 class="card-title mb-0">@Recette.Titre</h5>
+                <p class="card-subtitle text-light mb-2">@(Recette.Categorie?.Nom ?? "Catégorie inconnue")</p>
+                <p class="card-text small">@(Recette.Description?.Length > 50 ? Recette.Description.Substring(0, 50) + "..." : Recette.Description)</p>
+            </div>
+            <!-- Affichage de l'icône Bootstrap Icons (bi) -->
+            <i class="bi bi-dish" style="font-size: 2.5rem; opacity: 0.5;"></i>
         </div>
-        <button class="btn btn-danger" @onclick="() => OnSupprimer.InvokeAsync(Recette.Id)">Supprimer</button>
+        <div class="recette-meta mt-3">
+            <div class="row text-center">
+                <div class="col-6">
+                    <small class="text-light d-block">Personnes</small>
+                    <strong>@Recette.NbPersonnes</strong>
+                </div>
+                <div class="col-6">
+                    <small class="text-light d-block">Calories/pers</small>
+                    <strong>@Recette.GetCaloriesParPersonne().ToString("F0")</strong>
+                </div>
+            </div>
+        </div>
+        <div class="mt-3">
+            <button class="btn btn-sm btn-outline-light" @onclick="() => OnVoir.InvokeAsync(Recette.Id)">
+                <i class="bi bi-eye"></i> Voir
+            </button>
+            <button class="btn btn-sm btn-outline-danger" @onclick="() => OnSupprimer.InvokeAsync(Recette.Id)">
+                <i class="bi bi-trash"></i> Supprimer
+            </button>
+        </div>
     </div>
 </div>
 
 @code {
-    [Parameter] public Recette Recette { get; set; } = new();
-    [Parameter] public EventCallback<int> OnSupprimer { get; set; }
+    [Parameter]
+    public Recette Recette { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<int> OnVoir { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnSupprimer { get; set; }
 }

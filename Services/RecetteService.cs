@@ -14,7 +14,6 @@ public class RecetteService : IRecetteService
         _db.Recettes
            .Include(r => r.Categorie)
            .Include(r => r.TypeCuisine)
-           .Include(r => r.Utilisateur)
            .Include(r => r.Ingredients).ThenInclude(ri => ri.Ingredient);
 
     // ── Ingrédients ───────────────────────────────────────────────────────────

@@ -1,41 +1,88 @@
+<!-- Components/UI/RecetteTable.razor -->
 @using Microsoft.AspNetCore.Components
 @using RecetteApp.Models
 @namespace RecetteApp.Components.UI
 
 @if (!Recettes.Any())
 {
-    <p>Aucune recette.</p>
+    <div class="alert alert-info" role="alert">
+        <i class="bi bi-info-circle"></i> Aucune recette disponible.
+    </div>
 }
 else
 {
-    <table class="recette-table">
-        <thead>
-            <tr>
-                <th>Titre</th>
-                <th>Catégorie</th>
-                <th>Calories</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var recette in Recettes)
-            {
+    <div class="table-responsive">
+        <table class="table table-hover table-striped">
+            <thead class="table-dark">
                 <tr>
-                    <td>@recette.Titre</td>
-                    <td>@recette.Categorie?.Nom</td>
-                    <td>@recette.GetCaloriesParPersonne().ToString("F0")</td>
-                    <td>
-                        <button class="btn btn-link" @onclick="() => OnVoir.InvokeAsync(recette.Id)">Voir</button>
-                        <button class="btn btn-danger" @onclick="() => OnSupprimer.InvokeAsync(recette.Id)">Supprimer</button>
-                    </td>
+                    <th>
+                        <button class="btn btn-link text-white p-0" @onclick="() => OnSortRequested.InvokeAsync(\"Titre\")">
+                            Titre <i class="bi bi-arrow-down-up"></i>
+                        </button>
+                    </th>
+                    <th>
+                        <button class="btn btn-link text-white p-0" @onclick="() => OnSortRequested.InvokeAsync(\"Categorie\")">
+                            Catégorie <i class="bi bi-arrow-down-up"></i>
+                        </button>
+                    </th>
+                    <th>
+                        <button class="btn btn-link text-white p-0" @onclick="() => OnSortRequested.InvokeAsync(\"TypeCuisine\")">
+                            Type Cuisine <i class="bi bi-arrow-down-up"></i>
+                        </button>
+                    </th>
+                    <th>Personnes</th>
+                    <th class="text-end">
+                        <button class="btn btn-link text-white p-0" @onclick="() => OnSortRequested.InvokeAsync(\"Calories\")">
+                            Calories/pers <i class="bi bi-arrow-down-up"></i>
+                        </button>
+                    </th>
+                    <th class="text-center">Actions</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var recette in Recettes)
+                {
+                    <tr>
+                        <td>
+                            <strong>@recette.Titre</strong>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">@(recette.Categorie?.Nom ?? "N/A")</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-info text-dark">@(recette.TypeCuisine?.Nom ?? "N/A")</span>
+                        </td>
+                        <td>
+                            <i class="bi bi-people"></i> @recette.NbPersonnes
+                        </td>
+                        <td class="text-end">
+                            <strong>@recette.GetCaloriesParPersonne().ToString("F0")</strong> kcal
+                        </td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-primary" @onclick="() => OnVoir.InvokeAsync(recette.Id)" title="Voir les détails">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" @onclick="() => OnSupprimer.InvokeAsync(recette.Id)" title="Supprimer">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }
 
 @code {
-    [Parameter] public List<Recette> Recettes { get; set; } = new();
-    [Parameter] public EventCallback<int> OnVoir { get; set; }
-    [Parameter] public EventCallback<int> OnSupprimer { get; set; }
+    [Parameter]
+    public List<Recette> Recettes { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<int> OnVoir { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnSupprimer { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnSortRequested { get; set; }
 }

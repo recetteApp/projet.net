@@ -1,21 +1,24 @@
 using Microsoft.EntityFrameworkCore;
 using RecetteApp.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace RecetteApp.Data;
 
-public class AppDbContext : DbContext
+public class AppDbContext : IdentityDbContext<IdentityUser>
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
     public DbSet<Ingredient>        Ingredients        => Set<Ingredient>();
     public DbSet<Categorie>         Categories         => Set<Categorie>();
     public DbSet<TypeCuisine>       TypesCuisine       => Set<TypeCuisine>();
-    public DbSet<Utilisateur>       Utilisateurs       => Set<Utilisateur>();
     public DbSet<Recette>           Recettes           => Set<Recette>();
     public DbSet<RecetteIngredient> RecetteIngredients => Set<RecetteIngredient>();
 
     protected override void OnModelCreating(ModelBuilder mb)
     {
+        base.OnModelCreating(mb);
+
         // ── Relations ────────────────────────────────────────────────────────
         mb.Entity<RecetteIngredient>()
             .HasOne(ri => ri.Recette).WithMany(r => r.Ingredients)
@@ -32,12 +35,6 @@ public class AppDbContext : DbContext
         mb.Entity<Recette>()
             .HasOne(r => r.TypeCuisine).WithMany(t => t.Recettes)
             .HasForeignKey(r => r.TypeCuisineId).OnDelete(DeleteBehavior.Restrict);
-
-        mb.Entity<Recette>()
-            .HasOne(r => r.Utilisateur).WithMany(u => u.Recettes)
-            .HasForeignKey(r => r.UtilisateurId).OnDelete(DeleteBehavior.SetNull);
-
-        mb.Entity<Utilisateur>().HasIndex(u => u.Email).IsUnique();
 
         // ── Seed : Catégories ────────────────────────────────────────────────
         mb.Entity<Categorie>().HasData(
