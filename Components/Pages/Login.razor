@@ -1,5 +1,6 @@
 @page "/login"
 @using RecetteApp.Services
+@using Microsoft.AspNetCore.Identity
 @inject UserCounterService UserSvc
 @inject NavigationManager  Nav
 @rendermode InteractiveServer
@@ -47,13 +48,17 @@
     async Task Connecter()
     {
         if (string.IsNullOrWhiteSpace(_email) || string.IsNullOrWhiteSpace(_motDePasse))
-        { _message = "Veuillez remplir tous les champs."; _success = false; return; }
+        {
+            _message = "Veuillez remplir tous les champs.";
+            _success = false;
+            return;
+        }
 
-        var user = await UserSvc.ConnecterAsync(_email, _motDePasse);
-        if (user is not null)
+        var connecté = await UserSvc.ConnecterAsync(_email, _motDePasse);
+        if (connecté)
         {
             _success = true;
-            _message = $"Bienvenue, {user.Nom} !";
+            _message = $"Bienvenue !";
             Nav.NavigateTo("/");
         }
         else

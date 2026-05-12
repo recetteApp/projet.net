@@ -16,23 +16,23 @@ else
             <thead class="table-dark">
                 <tr>
                     <th>
-                        <button class="btn btn-link text-white p-0" @onclick="() => OnSortRequested.InvokeAsync(\"Titre\")">
+                        <button class="btn btn-link text-white p-0" @onclick="SortTitre">
                             Titre <i class="bi bi-arrow-down-up"></i>
                         </button>
                     </th>
                     <th>
-                        <button class="btn btn-link text-white p-0" @onclick="() => OnSortRequested.InvokeAsync(\"Categorie\")">
+                        <button class="btn btn-link text-white p-0" @onclick="SortCategorie">
                             Catégorie <i class="bi bi-arrow-down-up"></i>
                         </button>
                     </th>
                     <th>
-                        <button class="btn btn-link text-white p-0" @onclick="() => OnSortRequested.InvokeAsync(\"TypeCuisine\")">
+                        <button class="btn btn-link text-white p-0" @onclick="SortTypeCuisine">
                             Type Cuisine <i class="bi bi-arrow-down-up"></i>
                         </button>
                     </th>
                     <th>Personnes</th>
                     <th class="text-end">
-                        <button class="btn btn-link text-white p-0" @onclick="() => OnSortRequested.InvokeAsync(\"Calories\")">
+                        <button class="btn btn-link text-white p-0" @onclick="SortCalories">
                             Calories/pers <i class="bi bi-arrow-down-up"></i>
                         </button>
                     </th>
@@ -43,26 +43,26 @@ else
                 @foreach (var recette in Recettes)
                 {
                     <tr>
-                        <td>
-                            <strong>@recette.Titre</strong>
-                        </td>
+                        <td><strong>@recette.Titre</strong></td>
                         <td>
                             <span class="badge bg-secondary">@(recette.Categorie?.Nom ?? "N/A")</span>
                         </td>
                         <td>
                             <span class="badge bg-info text-dark">@(recette.TypeCuisine?.Nom ?? "N/A")</span>
                         </td>
-                        <td>
-                            <i class="bi bi-people"></i> @recette.NbPersonnes
-                        </td>
+                        <td><i class="bi bi-people"></i> @recette.NbPersonnes</td>
                         <td class="text-end">
                             <strong>@recette.GetCaloriesParPersonne().ToString("F0")</strong> kcal
                         </td>
                         <td class="text-center">
-                            <button class="btn btn-sm btn-primary" @onclick="() => OnVoir.InvokeAsync(recette.Id)" title="Voir les détails">
+                            <button class="btn btn-sm btn-primary"
+                                    @onclick="() => OnVoir.InvokeAsync(recette.Id)"
+                                    title="Voir les détails">
                                 <i class="bi bi-eye"></i>
                             </button>
-                            <button class="btn btn-sm btn-danger" @onclick="() => OnSupprimer.InvokeAsync(recette.Id)" title="Supprimer">
+                            <button class="btn btn-sm btn-danger"
+                                    @onclick="() => OnSupprimer.InvokeAsync(recette.Id)"
+                                    title="Supprimer">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </td>
@@ -74,15 +74,13 @@ else
 }
 
 @code {
-    [Parameter]
-    public List<Recette> Recettes { get; set; } = new();
+    [Parameter] public List<Recette> Recettes { get; set; } = new();
+    [Parameter] public EventCallback<int> OnVoir { get; set; }
+    [Parameter] public EventCallback<int> OnSupprimer { get; set; }
+    [Parameter] public EventCallback<string> OnSortRequested { get; set; }
 
-    [Parameter]
-    public EventCallback<int> OnVoir { get; set; }
-
-    [Parameter]
-    public EventCallback<int> OnSupprimer { get; set; }
-
-    [Parameter]
-    public EventCallback<string> OnSortRequested { get; set; }
+    private Task SortTitre()       => OnSortRequested.InvokeAsync("Titre");
+    private Task SortCategorie()   => OnSortRequested.InvokeAsync("Categorie");
+    private Task SortTypeCuisine() => OnSortRequested.InvokeAsync("TypeCuisine");
+    private Task SortCalories()    => OnSortRequested.InvokeAsync("Calories");
 }

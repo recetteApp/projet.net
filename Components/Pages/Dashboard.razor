@@ -20,10 +20,10 @@
 else
 {
     <div class="stats-grid">
-        <KpiCard Value="@_stats.TotalRecettes.ToString()"    Label="Recettes"           Icon="📖" Color="blue"   />
-        <KpiCard Value="@_stats.TotalIngredients.ToString()" Label="Ingrédients"        Icon="🥕" Color="green"  />
+        <KpiCard Value="@_stats.TotalRecettes.ToString()"       Label="Recettes"       Icon="📖" Color="blue"   />
+        <KpiCard Value="@_stats.TotalIngredients.ToString()"    Label="Ingrédients"    Icon="🥕" Color="green"  />
         <KpiCard Value="@($"{_stats.MoyenneCalories:F0} kcal")" Label="Moy. calorique" Icon="🔥" Color="orange" />
-        <KpiCard Value="@_stats.RecetteTop"                   Label="Recette top"        Icon="🏆" Color="red"    />
+        <KpiCard Value="@_stats.RecetteTop"                     Label="Recette top"    Icon="🏆" Color="red"    />
     </div>
 
     <div class="dashboard-grid">
@@ -45,7 +45,7 @@ else
                 <div class="bar-row">
                     <span class="bar-label">@kv.Key</span>
                     <div class="bar-track">
-                        <div class="bar-fill" style="width:@(kv.Value * 100 / Math.Max(_parCat.Values.Max(),1))%"></div>
+                        <div class="bar-fill" style="width:@(kv.Value * 100 / Math.Max(_parCat.Values.Max(), 1))%"></div>
                     </div>
                     <span class="bar-count">@kv.Value</span>
                 </div>
@@ -59,7 +59,7 @@ else
                 <div class="bar-row">
                     <span class="bar-label">@kv.Key</span>
                     <div class="bar-track">
-                        <div class="bar-fill cuisine" style="width:@(kv.Value * 100 / Math.Max(_parCuisine.Values.Max(),1))%"></div>
+                        <div class="bar-fill cuisine" style="width:@(kv.Value * 100 / Math.Max(_parCuisine.Values.Max(), 1))%"></div>
                     </div>
                     <span class="bar-count">@kv.Value</span>
                 </div>
@@ -71,10 +71,10 @@ else
 @code {
     [Inject] NavigationManager Nav { get; set; } = null!;
 
-    private StatistiquesGlobales?       _stats     = null;
-    private List<RecetteApp.Models.Recette> _top    = new();
-    private Dictionary<string, int>     _parCat    = new();
-    private Dictionary<string, int>     _parCuisine = new();
+    private StatistiquesGlobales?            _stats      = null;
+    private List<RecetteApp.Models.Recette>  _top        = new();
+    private Dictionary<string, int>          _parCat     = new();
+    private Dictionary<string, int>          _parCuisine = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -87,12 +87,9 @@ else
     async Task Supprimer(int id)
     {
         await Svc.DeleteRecetteAsync(id);
-        _top    = await Svc.TopCaloriquesAsync(5);
-        _stats  = await Svc.GetStatsAsync();
+        _top   = await Svc.TopCaloriquesAsync(5);
+        _stats = await Svc.GetStatsAsync();
     }
 
-    void VoirRecette(int id)
-    {
-        Nav.NavigateTo($"/recettes/{id}");
-    }
+    void VoirRecette(int id) => Nav.NavigateTo($"/recettes/{id}");
 }

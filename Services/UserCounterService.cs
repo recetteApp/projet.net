@@ -1,47 +1,69 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using RecetteApp.Data;
-using RecetteApp.Models;
 
 namespace RecetteApp.Services;
 
-/// <summary>Service de gestion des utilisateurs (inscription, connexion).</summary>
+/// <summary>Service de gestion des utilisateurs via ASP.NET Identity.</summary>
 public class UserCounterService
 {
-    private readonly AppDbContext _db;
-    public UserCounterService(AppDbContext db) => _db = db;
+    private readonly UserManager<IdentityUser> _userManager;
+    private readonly SignInManager<IdentityUser> _signInManager;
 
-    public async Task<List<Utilisateur>> GetAllAsync() =>
-        await _db.Utilisateurs.ToListAsync();
+    public UserCounterService(
+        UserManager<IdentityUser> userManager,
+        SignInManager<IdentityUser> signInManager)
+    {
+        _userManager    = userManager;
+        _signInManager  = signInManager;
+    }
 
-    public async Task<Utilisateur?> GetByIdAsync(int id) =>
-        await _db.Utilisateurs.FindAsync(id);
+    public async Task<List<IdentityUser>> GetAllAsync() =>
+        await _userManager.Users.ToListAsync();
 
-    public async Task<Utilisateur?> GetByEmailAsync(string email) =>
-        await _db.Utilisateurs.FirstOrDefaultAsync(u => u.Email == email);
+    public async Task<IdentityUser?> GetByIdAsync(string id) =>
+        await _userManager.FindByIdAsync(id);
+
+    public async Task<IdentityUser?> GetByEmailAsync(string email) =>
+        await _userManager.FindByEmailAsync(email);
 
     public async Task<bool> EmailExisteAsync(string email) =>
-        await _db.Utilisateurs.AnyAsync(u => u.Email == email);
+        await _userManager.FindByEmailAsync(email) is not null;
 
-    public async Task<Utilisateur> InscrireAsync(string nom, string email, string motDePasse)
+    public async Task<IdentityUser> InscrireAsync(string nom, string email, string motDePasse)
     {
         if (await EmailExisteAsync(email))
             throw new InvalidOperationException("Cet email est déjà utilisé.");
 
-        var user = new Utilisateur { Nom = nom, Email = email, MotDePasse = motDePasse };
-        _db.Utilisateurs.Add(user);
-        await _db.SaveChangesAsync();
+        var user = new IdentityUser { UserName = email, Email = email };
+        var result = await _userManager.CreateAsync(user, motDePasse);
+
+        if (!result.Succeeded)
+        {
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            throw new InvalidOperationException($"Erreur lors de l'inscription : {errors}");
+        }
+
         return user;
     }
 
-    public async Task<Utilisateur?> ConnecterAsync(string email, string motDePasse) =>
-        await _db.Utilisateurs
-            .FirstOrDefaultAsync(u => u.Email == email && u.MotDePasse == motDePasse);
-
-    public async Task SupprimerAsync(int id)
+    public async Task<bool> ConnecterAsync(string email, string motDePasse)
     {
-        var u = await _db.Utilisateurs.FindAsync(id);
-        if (u is not null) { _db.Utilisateurs.Remove(u); await _db.SaveChangesAsync(); }
+        var result = await _signInManager.PasswordSignInAsync(
+            email, motDePasse, isPersistent: false, lockoutOnFailure: false);
+        return result.Succeeded;
     }
 
-    public async Task<int> CountAsync() => await _db.Utilisateurs.CountAsync();
+    public async Task DeconnecterAsync() =>
+        await _signInManager.SignOutAsync();
+
+    public async Task SupprimerAsync(string id)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user is not null)
+            await _userManager.DeleteAsync(user);
+    }
+
+    public async Task<int> CountAsync() =>
+        await _userManager.Users.CountAsync();
 }

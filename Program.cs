@@ -16,7 +16,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddScoped<IRecetteService, RecetteService>();
 builder.Services.AddScoped<UserCounterService>();
 builder.Services.AddTransient<UserCounterService>();
-builder.Services.AddSingleton<UserCounterService>();
+builder.Services.AddScoped<UserCounterService>();
 builder.Services.AddScoped<TooltipService>();
 builder.Services.AddScoped<DialogService>();
 builder.Services.AddScoped<NotificationService>();

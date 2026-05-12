@@ -8,9 +8,11 @@
     ".NETCoreApp,Version=v10.0": {
       "RecetteApp/1.0.0": {
         "dependencies": {
+          "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "10.0.0",
           "Microsoft.EntityFrameworkCore.Design": "10.0.7",
           "Microsoft.EntityFrameworkCore.SqlServer": "10.0.7",
-          "Microsoft.EntityFrameworkCore.Sqlite": "10.0.7"
+          "Microsoft.EntityFrameworkCore.Sqlite": "10.0.7",
+          "Radzen.Blazor": "5.8.0"
         },
         "runtime": {
           "RecetteApp.dll": {}
@@ -47,6 +49,17 @@
           "lib/net6.0/Humanizer.dll": {
             "assemblyVersion": "2.14.0.0",
             "fileVersion": "2.14.1.48190"
+          }
+        }
+      },
+      "Microsoft.AspNetCore.Identity.EntityFrameworkCore/10.0.0": {
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore.Relational": "10.0.7"
+        },
+        "runtime": {
+          "lib/net10.0/Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll": {
+            "assemblyVersion": "10.0.0.0",
+            "fileVersion": "10.0.25.52411"
           }
         }
       },
@@ -662,6 +675,17 @@
           }
         }
       },
+      "Radzen.Blazor/5.8.0": {
+        "dependencies": {
+          "System.Linq.Dynamic.Core": "1.5.1"
+        },
+        "runtime": {
+          "lib/net9.0/Radzen.Blazor.dll": {
+            "assemblyVersion": "5.8.0.0",
+            "fileVersion": "5.8.0.0"
+          }
+        }
+      },
       "SQLitePCLRaw.bundle_e_sqlite3/2.1.11": {
         "dependencies": {
           "SQLitePCLRaw.lib.e_sqlite3": "2.1.11",
@@ -914,6 +938,14 @@
           }
         }
       },
+      "System.Linq.Dynamic.Core/1.5.1": {
+        "runtime": {
+          "lib/net9.0/System.Linq.Dynamic.Core.dll": {
+            "assemblyVersion": "1.5.1.0",
+            "fileVersion": "1.5.1.0"
+          }
+        }
+      },
       "System.Memory.Data/8.0.1": {
         "runtime": {
           "lib/net8.0/System.Memory.Data.dll": {
@@ -958,6 +990,13 @@
       "sha512": "sha512-lQKvtaTDOXnoVJ20ibTuSIOf2i0uO0MPbDhd1jm238I+U/2ZnRENj0cktKZhtchBMtCUSRQ5v4xBCUbKNmyVMw==",
       "path": "humanizer.core/2.14.1",
       "hashPath": "humanizer.core.2.14.1.nupkg.sha512"
+    },
+    "Microsoft.AspNetCore.Identity.EntityFrameworkCore/10.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-mH1+58nbX5RWSd8hajSnXSdpQ1MN3oca488Zd+DvKX2nPTAyTVNRzubMV06BmPcjOZ9waLr/AjwcNiCQ8bCscQ==",
+      "path": "microsoft.aspnetcore.identity.entityframeworkcore/10.0.0",
+      "hashPath": "microsoft.aspnetcore.identity.entityframeworkcore.10.0.0.nupkg.sha512"
     },
     "Microsoft.Bcl.AsyncInterfaces/8.0.0": {
       "type": "package",
@@ -1176,6 +1215,13 @@
       "path": "newtonsoft.json/13.0.3",
       "hashPath": "newtonsoft.json.13.0.3.nupkg.sha512"
     },
+    "Radzen.Blazor/5.8.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Dl4Czk5oKPZnyn/iYDc228D72GUusLoNbVE2H7/yDB+4UXtzoVed/uw1AQUpdcLoeeFPFixsoAPCfIdnUWOVoA==",
+      "path": "radzen.blazor/5.8.0",
+      "hashPath": "radzen.blazor.5.8.0.nupkg.sha512"
+    },
     "SQLitePCLRaw.bundle_e_sqlite3/2.1.11": {
       "type": "package",
       "serviceable": true,
@@ -1273,6 +1319,13 @@
       "sha512": "sha512-rQkO1YbAjLwnDJSMpRhRtrc6XwIcEOcUvoEcge+evurpzSZM3UNK+MZfD3sKyTlYsvknZ6eJjSBfnmXqwOsT9Q==",
       "path": "system.identitymodel.tokens.jwt/7.7.1",
       "hashPath": "system.identitymodel.tokens.jwt.7.7.1.nupkg.sha512"
+    },
+    "System.Linq.Dynamic.Core/1.5.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Uj3xYJHWFs1zXjTrTrPAB3KEPtUirYwFjCmYO+cqcNC/TM0GMjbHtvQYwSr8T3zv/BihVvcpiTOpzn/naVii4g==",
+      "path": "system.linq.dynamic.core/1.5.1",
+      "hashPath": "system.linq.dynamic.core.1.5.1.nupkg.sha512"
     },
     "System.Memory.Data/8.0.1": {
       "type": "package",

@@ -2,30 +2,21 @@
 @using Microsoft.AspNetCore.Components
 @namespace RecetteApp.Components.UI
 
-<div class="card text-white @BackgroundColorClass h-100">
+<div class="card kpi-card kpi-@Color h-100">
     <div class="card-body">
         <div class="d-flex justify-content-between align-items-center">
             <div>
-                <h6 class="card-title mb-0">@Title</h6>
-                <h3 class="my-2">@Value</h3>
+                <h6 class="card-title mb-0 text-muted">@Label</h6>
+                <h3 class="my-2 fw-bold">@Value</h3>
             </div>
-            <!-- Affichage de l'icône Bootstrap Icons (bi) -->
-            <i class="bi @IconClass" style="font-size: 2.5rem; opacity: 0.5;"></i>
+            <span style="font-size: 2.5rem; opacity: 0.6;">@Icon</span>
         </div>
     </div>
 </div>
 
 @code {
-    //[Parameter] indique que ces valeurs seront fournies par la balise parente
-    [Parameter]
-    public string Title { get; set; } = "Titre KPI";
-
-    [Parameter]
-    public string Value { get; set; } = "0";
-
-    [Parameter]
-    public string BackgroundColorClass { get; set; } = "bg-primary";
-
-    [Parameter]
-    public string IconClass { get; set; } = "bi-graph-up"; // Icône par défaut
+    [Parameter] public string Value { get; set; } = "0";
+    [Parameter] public string Label { get; set; } = "";
+    [Parameter] public string Icon  { get; set; } = "📊";
+    [Parameter] public string Color { get; set; } = "blue";
 }
