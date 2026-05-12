@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RecetteApp.Data;
+using RecetteApp.Services;
 using RecetteApp.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,8 +9,9 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=recette.db"));  
+    options.UseSqlite("Data Source=recette.db"));
 
+builder.Services.AddScoped<IRecetteService, RecetteService>();
 
 var app = builder.Build();
 

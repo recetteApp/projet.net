@@ -1,0 +1,41 @@
+@using Microsoft.AspNetCore.Components
+@using RecetteApp.Models
+@namespace RecetteApp.Components.UI
+
+@if (!Recettes.Any())
+{
+    <p>Aucune recette.</p>
+}
+else
+{
+    <table class="recette-table">
+        <thead>
+            <tr>
+                <th>Titre</th>
+                <th>Catégorie</th>
+                <th>Calories</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var recette in Recettes)
+            {
+                <tr>
+                    <td>@recette.Titre</td>
+                    <td>@recette.Categorie?.Nom</td>
+                    <td>@recette.GetCaloriesParPersonne().ToString("F0")</td>
+                    <td>
+                        <button class="btn btn-link" @onclick="() => OnVoir.InvokeAsync(recette.Id)">Voir</button>
+                        <button class="btn btn-danger" @onclick="() => OnSupprimer.InvokeAsync(recette.Id)">Supprimer</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter] public List<Recette> Recettes { get; set; } = new();
+    [Parameter] public EventCallback<int> OnVoir { get; set; }
+    [Parameter] public EventCallback<int> OnSupprimer { get; set; }
+}

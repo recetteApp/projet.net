@@ -22,7 +22,7 @@ else
     <div class="stats-grid">
         <KpiCard Value="@_stats.TotalRecettes.ToString()"    Label="Recettes"           Icon="📖" Color="blue"   />
         <KpiCard Value="@_stats.TotalIngredients.ToString()" Label="Ingrédients"        Icon="🥕" Color="green"  />
-        <KpiCard Value="@_stats.MoyenneCalories.ToString("F0") kcal" Label="Moy. calorique" Icon="🔥" Color="orange" />
+        <KpiCard Value="@($"{_stats.MoyenneCalories:F0} kcal")" Label="Moy. calorique" Icon="🔥" Color="orange" />
         <KpiCard Value="@_stats.RecetteTop"                   Label="Recette top"        Icon="🏆" Color="red"    />
     </div>
 
@@ -32,7 +32,7 @@ else
             @if (_top.Any())
             {
                 <RecetteTable Recettes="_top"
-                              OnVoir="id => Nav.NavigateTo($@"/recettes/{id}")"
+                              OnVoir="VoirRecette"
                               OnSupprimer="Supprimer" />
             }
             else { <p class="empty">Aucune recette.</p> }
@@ -89,5 +89,10 @@ else
         await Svc.DeleteRecetteAsync(id);
         _top    = await Svc.TopCaloriquesAsync(5);
         _stats  = await Svc.GetStatsAsync();
+    }
+
+    void VoirRecette(int id)
+    {
+        Nav.NavigateTo($"/recettes/{id}");
     }
 }

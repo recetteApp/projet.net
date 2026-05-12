@@ -1,0 +1,17 @@
+@using Microsoft.AspNetCore.Components
+@namespace RecetteApp.Components.UI
+
+<div class="kpi-card @Color">
+    <div class="kpi-card-icon">@Icon</div>
+    <div class="kpi-card-body">
+        <div class="kpi-card-value">@Value</div>
+        <div class="kpi-card-label">@Label</div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Value { get; set; } = string.Empty;
+    [Parameter] public string Label { get; set; } = string.Empty;
+    [Parameter] public string Icon { get; set; } = string.Empty;
+    [Parameter] public string Color { get; set; } = "gray";
+}

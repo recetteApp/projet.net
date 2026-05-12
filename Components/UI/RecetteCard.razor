@@ -1,0 +1,21 @@
+@using Microsoft.AspNetCore.Components
+@using RecetteApp.Models
+@namespace RecetteApp.Components.UI
+
+<div class="recette-card card">
+    <div class="card-body">
+        <div class="card-title">@Recette.Titre</div>
+        <div class="card-subtitle">@Recette.Categorie?.Nom ?? "Catégorie inconnue"</div>
+        <p>@Recette.Description</p>
+        <div class="recette-meta">
+            <span>@Recette.NbPersonnes personnes</span>
+            <span>@Recette.GetCaloriesParPersonne().ToString("F0") kcal / pers</span>
+        </div>
+        <button class="btn btn-danger" @onclick="() => OnSupprimer.InvokeAsync(Recette.Id)">Supprimer</button>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Recette Recette { get; set; } = new();
+    [Parameter] public EventCallback<int> OnSupprimer { get; set; }
+}
