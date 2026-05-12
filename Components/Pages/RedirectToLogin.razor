@@ -1,0 +1,9 @@
+@inject NavigationManager Nav
+@code {
+    protected override void OnInitialized()
+    {
+        // forceLoad: true déclenche un rechargement HTTP complet
+        // ce qui permet au middleware d'auth ASP.NET Core de rediriger proprement
+        Nav.NavigateTo("/login", forceLoad: true);
+    }
+}

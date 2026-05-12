@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\BYR GAMER\\projet.net\\RecetteApp.csproj": {}
+    "C:\\Users\\bechi\\Desktop\\projet.net\\RecetteApp.csproj": {}
   },
   "projects": {
-    "C:\\Users\\BYR GAMER\\projet.net\\RecetteApp.csproj": {
+    "C:\\Users\\bechi\\Desktop\\projet.net\\RecetteApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\BYR GAMER\\projet.net\\RecetteApp.csproj",
+        "projectUniqueName": "C:\\Users\\bechi\\Desktop\\projet.net\\RecetteApp.csproj",
         "projectName": "RecetteApp",
-        "projectPath": "C:\\Users\\BYR GAMER\\projet.net\\RecetteApp.csproj",
-        "packagesPath": "C:\\Users\\BYR GAMER\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\BYR GAMER\\projet.net\\obj\\",
+        "projectPath": "C:\\Users\\bechi\\Desktop\\projet.net\\RecetteApp.csproj",
+        "packagesPath": "C:\\Users\\bechi\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\bechi\\Desktop\\projet.net\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\BYR GAMER\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\bechi\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
@@ -38,7 +38,7 @@
           "auditLevel": "low",
           "auditMode": "all"
         },
-        "SdkAnalysisLevel": "10.0.100"
+        "SdkAnalysisLevel": "10.0.200"
       },
       "frameworks": {
         "net10.0": {
@@ -76,7 +76,7 @@
             },
             "Radzen.Blazor": {
               "target": "Package",
-              "version": "[5.8.0, )"
+              "version": "[10.4.1, )"
             }
           },
           "imports": [
@@ -98,7 +98,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.107/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.203/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.AspNetCore": "(,10.0.32767]",
             "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",

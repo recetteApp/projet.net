@@ -1,6 +1,7 @@
 @page "/ingredients"
 @using RecetteApp.Models
 @using RecetteApp.Services
+@attribute [Authorize]
 @inject IRecetteService Svc
 @rendermode InteractiveServer
 
@@ -18,33 +19,48 @@
 @if (_enEdition)
 {
     <div class="card form-card">
-        <h2>@(_edit!.Id == 0 ? "Nouvel ingrédient" : "Modifier")</h2>
-        <div class="form-grid">
-            <div class="form-group">
-                <label>Nom *</label>
-                <input class="form-input" @bind="_edit.Nom" placeholder="ex: Farine" />
+        <h2>@(_edit!.Id == 0 ? "Nouvel ingrédient" : "Modifier l'ingrédient")</h2>
+        <EditForm Model="_edit" OnValidSubmit="Sauvegarder">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="alert alert-danger" />
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Nom *</label>
+                    <InputText class="form-input" @bind-Value="_edit.Nom" placeholder="ex: Farine" />
+                    <ValidationMessage For="() => _edit!.Nom" />
+                </div>
+                <div class="form-group">
+                    <label>Unité *</label>
+                    <InputSelect class="form-select" @bind-Value="_edit.Unite">
+                        <option value="">-- Unité --</option>
+                        <option value="g">g</option>
+                        <option value="kg">kg</option>
+                        <option value="ml">ml</option>
+                        <option value="l">l</option>
+                        <option value="pièce">pièce</option>
+                        <option value="gousse">gousse</option>
+                        <option value="cuillère">cuillère</option>
+                        <option value="tasse">tasse</option>
+                    </InputSelect>
+                    <ValidationMessage For="() => _edit!.Unite" />
+                </div>
+                <div class="form-group">
+                    <label>Kcal / unité *</label>
+                    <InputNumber class="form-input" @bind-Value="_edit.CaloriesParUnite" />
+                    <ValidationMessage For="() => _edit!.CaloriesParUnite" />
+                </div>
             </div>
-            <div class="form-group">
-                <label>Unité *</label>
-                <select class="form-select" @bind="_edit.Unite">
-                    <option value="">-- Unité --</option>
-                    <option value="g">g</option><option value="kg">kg</option>
-                    <option value="ml">ml</option><option value="l">l</option>
-                    <option value="pièce">pièce</option><option value="gousse">gousse</option>
-                    <option value="cuillère">cuillère</option><option value="tasse">tasse</option>
-                </select>
+
+            @if (!string.IsNullOrEmpty(_msg))
+            {
+                <div class="alert @(_ok ? "alert-success" : "alert-danger")">@_msg</div>
+            }
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">💾 Sauvegarder</button>
+                <button type="button" class="btn btn-secondary" @onclick="Annuler">Annuler</button>
             </div>
-            <div class="form-group">
-                <label>Kcal / unité *</label>
-                <input class="form-input" type="number" step="0.01" min="0" @bind="_edit.CaloriesParUnite" />
-            </div>
-        </div>
-        @if (!string.IsNullOrEmpty(_msg))
-        { <div class="alert @(_ok ? "alert-success" : "alert-danger")">@_msg</div> }
-        <div class="form-actions">
-            <button class="btn btn-primary" @onclick="Sauvegarder">💾 Sauvegarder</button>
-            <button class="btn btn-secondary" @onclick="Annuler">Annuler</button>
-        </div>
+        </EditForm>
     </div>
 }
 
@@ -94,7 +110,7 @@
 
     async Task Recharger() { _tous = await Svc.GetAllIngredientsAsync(); Filtrer(); }
 
-    void Filtrer()
+    void Filtrer(ChangeEventArgs? _ = null)
     {
         var q = _tous.Where(i => string.IsNullOrEmpty(_recherche) ||
             i.Nom.Contains(_recherche, StringComparison.OrdinalIgnoreCase));
@@ -114,12 +130,10 @@
 
     async Task Sauvegarder()
     {
-        if (string.IsNullOrWhiteSpace(_edit!.Nom)||string.IsNullOrWhiteSpace(_edit.Unite))
-        { _msg="Nom et unité obligatoires."; _ok=false; return; }
-        if (_edit.Id==0) await Svc.CreateIngredientAsync(_edit);
-        else             await Svc.UpdateIngredientAsync(_edit);
-        _msg="Ingrédient sauvegardé."; _ok=true;
-        await Recharger(); _enEdition=false;
+        if (_edit!.Id == 0) await Svc.CreateIngredientAsync(_edit);
+        else                await Svc.UpdateIngredientAsync(_edit);
+        _msg = "Ingrédient sauvegardé ✅"; _ok = true;
+        await Recharger(); _enEdition = false;
     }
 
     async Task Supprimer(int id) { await Svc.DeleteIngredientAsync(id); await Recharger(); }

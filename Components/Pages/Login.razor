@@ -1,8 +1,9 @@
 @page "/login"
 @using RecetteApp.Services
 @using Microsoft.AspNetCore.Identity
-@inject UserCounterService UserSvc
-@inject NavigationManager  Nav
+@attribute [AllowAnonymous]
+@inject NavigationManager Nav
+@inject IJSRuntime JS
 @rendermode InteractiveServer
 
 <PageTitle>Connexion – RecetteApp</PageTitle>
@@ -20,18 +21,26 @@
             <div class="alert @(_success ? "alert-success" : "alert-danger")">@_message</div>
         }
 
-        <div class="form-group">
-            <label>Email</label>
-            <input class="form-input" type="email" @bind="_email" placeholder="votre@email.com" />
-        </div>
-        <div class="form-group">
-            <label>Mot de passe</label>
-            <input class="form-input" type="password" @bind="_motDePasse" placeholder="••••••••" />
-        </div>
+        <EditForm Model="_model" OnValidSubmit="Connecter">
+            <DataAnnotationsValidator />
 
-        <div class="form-actions">
-            <button class="btn btn-primary w-full" @onclick="Connecter">Se connecter</button>
-        </div>
+            <div class="form-group">
+                <label>Email</label>
+                <InputText class="form-input" type="email" @bind-Value="_model.Email" placeholder="votre@email.com" />
+                <ValidationMessage For="() => _model.Email" />
+            </div>
+            <div class="form-group">
+                <label>Mot de passe</label>
+                <InputText class="form-input" type="password" @bind-Value="_model.MotDePasse" placeholder="••••••••" />
+                <ValidationMessage For="() => _model.MotDePasse" />
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary w-full" disabled="@_loading">
+                    @if (_loading) { <span>⏳ Connexion...</span> } else { <span>Se connecter</span> }
+                </button>
+            </div>
+        </EditForm>
 
         <p class="auth-footer">
             Pas encore de compte ? <a href="/register">S'inscrire</a>
@@ -40,31 +49,58 @@
 </div>
 
 @code {
-    private string _email      = "";
-    private string _motDePasse = "";
-    private string _message    = "";
-    private bool   _success    = false;
+    private LoginModel _model   = new();
+    private string     _message = "";
+    private bool       _success = false;
+    private bool       _loading = false;
+
+    [SupplyParameterFromQuery]
+    private string? ReturnUrl { get; set; }
 
     async Task Connecter()
     {
-        if (string.IsNullOrWhiteSpace(_email) || string.IsNullOrWhiteSpace(_motDePasse))
-        {
-            _message = "Veuillez remplir tous les champs.";
-            _success = false;
-            return;
-        }
+        _loading = true;
+        _message = "";
+        StateHasChanged();
 
-        var connecté = await UserSvc.ConnecterAsync(_email, _motDePasse);
-        if (connecté)
+        try
         {
-            _success = true;
-            _message = $"Bienvenue !";
-            Nav.NavigateTo("/");
+            // Appel HTTP classique pour que le cookie Set-Cookie puisse être émis
+            var result = await JS.InvokeAsync<bool>("authHelper.login", _model.Email, _model.MotDePasse);
+
+            if (result)
+            {
+                _success = true;
+                _message = "Connexion réussie ! Redirection...";
+                StateHasChanged();
+                // forceLoad: true pour que le navigateur envoie le nouveau cookie
+                Nav.NavigateTo(ReturnUrl ?? "/", forceLoad: true);
+            }
+            else
+            {
+                _success = false;
+                _message = "Email ou mot de passe incorrect.";
+            }
         }
-        else
+        catch
         {
             _success = false;
-            _message = "Email ou mot de passe incorrect.";
+            _message = "Erreur lors de la connexion. Veuillez réessayer.";
         }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    class LoginModel
+    {
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "L'email est obligatoire.")]
+        [System.ComponentModel.DataAnnotations.EmailAddress(ErrorMessage = "Format d'email invalide.")]
+        public string Email { get; set; } = "";
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Le mot de passe est obligatoire.")]
+        [System.ComponentModel.DataAnnotations.MinLength(6, ErrorMessage = "Minimum 6 caractères.")]
+        public string MotDePasse { get; set; } = "";
     }
 }

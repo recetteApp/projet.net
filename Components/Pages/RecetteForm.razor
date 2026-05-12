@@ -1,0 +1,264 @@
+@page "/recettes/new"
+@page "/recettes/{Id:int}/edit"
+@using RecetteApp.Models
+@using RecetteApp.Services
+@attribute [Authorize]
+@inject IRecetteService Svc
+@inject NavigationManager Nav
+@rendermode InteractiveServer
+
+<PageTitle>@(Id == null ? "Nouvelle recette" : "Modifier la recette") – RecetteApp</PageTitle>
+
+<div class="page-header">
+    <h1>@(Id == null ? "➕ Nouvelle recette" : "✏️ Modifier la recette")</h1>
+    <button class="btn btn-secondary" @onclick='() => Nav.NavigateTo("/recettes")'>← Retour</button>
+</div>
+
+@if (_chargement)
+{
+    <div class="text-center p-5"><div class="spinner-border text-primary"></div></div>
+}
+else
+{
+    <div class="row g-4">
+        <!-- Formulaire principal -->
+        <div class="col-lg-7">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white fw-bold">📋 Informations de la recette</div>
+                <div class="card-body">
+                    <EditForm Model="_recette" OnValidSubmit="Sauvegarder">
+                        <DataAnnotationsValidator />
+
+                        <div class="form-group mb-3">
+                            <label class="form-label fw-semibold">Titre *</label>
+                            <InputText class="form-control" @bind-Value="_recette.Titre" placeholder="ex: Tajine de poulet" />
+                            <ValidationMessage For="() => _recette.Titre" />
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label fw-semibold">Description</label>
+                            <InputTextArea class="form-control" rows="3" @bind-Value="_recette.Description"
+                                           placeholder="Décrivez votre recette..." />
+                            <ValidationMessage For="() => _recette.Description" />
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Catégorie *</label>
+                                <InputSelect class="form-select" @bind-Value="_recette.CategorieId">
+                                    <option value="0">-- Choisir --</option>
+                                    @foreach (var c in _categories)
+                                    { <option value="@c.Id">@c.Nom</option> }
+                                </InputSelect>
+                                <ValidationMessage For="() => _recette.CategorieId" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Type de cuisine *</label>
+                                <InputSelect class="form-select" @bind-Value="_recette.TypeCuisineId">
+                                    <option value="0">-- Choisir --</option>
+                                    @foreach (var t in _types)
+                                    { <option value="@t.Id">@t.Nom</option> }
+                                </InputSelect>
+                                <ValidationMessage For="() => _recette.TypeCuisineId" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Personnes *</label>
+                                <InputNumber class="form-control" @bind-Value="_recette.NbPersonnes" min="1" max="50" />
+                                <ValidationMessage For="() => _recette.NbPersonnes" />
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label fw-semibold">Étapes de préparation</label>
+                            <InputTextArea class="form-control" rows="6" @bind-Value="_recette.Etapes"
+                                           placeholder="Étape 1 : ...&#10;Étape 2 : ...&#10;(une étape par ligne)" />
+                            <ValidationMessage For="() => _recette.Etapes" />
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(_msg))
+                        {
+                            <div class="alert @(_ok ? "alert-success" : "alert-danger")">@_msg</div>
+                        }
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">💾 Sauvegarder</button>
+                            <button type="button" class="btn btn-outline-secondary" @onclick='() => Nav.NavigateTo("/recettes")'>
+                                Annuler
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gestion des ingrédients -->
+        <div class="col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white fw-bold">🥕 Ingrédients</div>
+                <div class="card-body">
+                    @if (Id == null)
+                    {
+                        <div class="alert alert-info small">
+                            💡 Sauvegardez d'abord la recette pour pouvoir ajouter des ingrédients.
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Ajout d'ingrédient -->
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <select class="form-select form-select-sm" @bind="_selIngId">
+                                    <option value="0">-- Ingrédient --</option>
+                                    @foreach (var i in _ingredients)
+                                    { <option value="@i.Id">@i.Nom (@i.Unite)</option> }
+                                </select>
+                            </div>
+                            <div class="col-3">
+                                <input class="form-control form-control-sm" type="number" step="0.1" min="0.1"
+                                       @bind="_selQuantite" placeholder="Qté" />
+                            </div>
+                            <div class="col-3">
+                                <button class="btn btn-success btn-sm w-100" @onclick="AjouterIngredient"
+                                        disabled="@(_selIngId == 0 || _selQuantite <= 0)">
+                                    + Ajouter
+                                </button>
+                            </div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(_msgIng))
+                        {
+                            <div class="alert alert-warning small py-1">@_msgIng</div>
+                        }
+
+                        <!-- Liste des ingrédients -->
+                        @if (_recette.Ingredients.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover mb-2">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Ingrédient</th>
+                                            <th class="text-end">Qté</th>
+                                            <th class="text-end">Kcal</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var ri in _recette.Ingredients)
+                                        {
+                                            <tr>
+                                                <td>@ri.Ingredient?.Nom</td>
+                                                <td class="text-end">@ri.Quantite.ToString("F1") @ri.Ingredient?.Unite</td>
+                                                <td class="text-end">@ri.GetCaloriesTotales().ToString("F0")</td>
+                                                <td class="text-end">
+                                                    <button class="btn btn-danger btn-sm py-0"
+                                                            @onclick="() => RetirerIngredient(ri.Id)">×</button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                    <tfoot class="table-light">
+                                        <tr>
+                                            <td colspan="2" class="fw-bold text-end">Total :</td>
+                                            <td class="text-end fw-bold text-danger">@_recette.GetCaloriesTotales().ToString("F0") kcal</td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2" class="text-end text-muted small">Par personne :</td>
+                                            <td class="text-end text-muted small">@_recette.GetCaloriesParPersonne().ToString("F0") kcal</td>
+                                            <td></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center text-muted py-3 small">Aucun ingrédient ajouté.</div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int? Id { get; set; }
+
+    private Recette           _recette     = new() { NbPersonnes = 4 };
+    private List<Categorie>   _categories  = new();
+    private List<TypeCuisine> _types       = new();
+    private List<Ingredient>  _ingredients = new();
+    private bool   _chargement = true;
+    private string _msg    = "";
+    private bool   _ok     = false;
+    private string _msgIng = "";
+    private int    _selIngId    = 0;
+    private float  _selQuantite = 1f;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _categories  = await Svc.GetAllCategoriesAsync();
+        _types       = await Svc.GetAllTypesCuisineAsync();
+        _ingredients = await Svc.GetAllIngredientsAsync();
+
+        if (Id.HasValue)
+        {
+            var r = await Svc.GetRecetteByIdAsync(Id.Value);
+            if (r != null) _recette = r;
+        }
+
+        _chargement = false;
+    }
+
+    async Task Sauvegarder()
+    {
+        try
+        {
+            if (_recette.Id == 0)
+            {
+                var created = await Svc.CreateRecetteAsync(_recette);
+                _ok  = true;
+                _msg = "Recette créée avec succès !";
+                // Navigate to edit mode to allow adding ingredients
+                Nav.NavigateTo($"/recettes/{created.Id}/edit");
+            }
+            else
+            {
+                await Svc.UpdateRecetteAsync(_recette);
+                _ok  = true;
+                _msg = "Recette mise à jour ✅";
+                // Reload to get fresh data
+                _recette = (await Svc.GetRecetteByIdAsync(_recette.Id))!;
+            }
+        }
+        catch (Exception ex)
+        {
+            _ok  = false;
+            _msg = $"Erreur : {ex.Message}";
+        }
+    }
+
+    async Task AjouterIngredient()
+    {
+        if (_selIngId == 0 || _selQuantite <= 0) return;
+        _msgIng = "";
+        try
+        {
+            await Svc.AjouterIngredientAsync(_recette.Id, _selIngId, _selQuantite);
+            _recette = (await Svc.GetRecetteByIdAsync(_recette.Id))!;
+            _selIngId    = 0;
+            _selQuantite = 1f;
+        }
+        catch
+        {
+            _msgIng = "Cet ingrédient est déjà dans la recette.";
+        }
+    }
+
+    async Task RetirerIngredient(int riId)
+    {
+        await Svc.RetirerIngredientAsync(riId);
+        _recette = (await Svc.GetRecetteByIdAsync(_recette.Id))!;
+    }
+}

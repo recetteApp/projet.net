@@ -1,29 +1,36 @@
 namespace RecetteApp.Models;
 
+/// <summary>
+/// Classe utilitaire d'analyse nutritionnelle et statistique sur un ensemble de recettes.
+/// </summary>
 public class AnalyseRecette
 {
-    public float  CalTotales     { get; private set; }
-    public float  CalParPersonne { get; private set; }
-    public string Categorie      { get; private set; } = string.Empty;
-    public string TypeCuisine    { get; private set; } = string.Empty;
+    private readonly IReadOnlyList<Recette> _recettes;
 
-    private readonly IEnumerable<Recette> _recettes;
-    public AnalyseRecette(IEnumerable<Recette> recettes) => _recettes = recettes;
-
-    public void Calculer(Recette r)
+    public AnalyseRecette(IEnumerable<Recette> recettes)
     {
-        CalTotales     = r.GetCaloriesTotales();
-        CalParPersonne = r.GetCaloriesParPersonne();
-        Categorie      = r.Categorie?.Nom ?? "";
-        TypeCuisine    = r.TypeCuisine?.Nom ?? "";
+        _recettes = recettes.ToList();
     }
 
-    public Dictionary<string, int> RepartitionCategorie() =>
-        _recettes.GroupBy(r => r.Categorie?.Nom ?? "Inconnu").ToDictionary(g => g.Key, g => g.Count());
+    /// <summary>Retourne les N recettes les plus caloriques (total).</summary>
+    public IEnumerable<Recette> TopRecettesCaloriques(int n = 5)
+        => _recettes.OrderByDescending(r => r.GetCaloriesTotales()).Take(n);
 
-    public Dictionary<string, int> RepartitionTypeCuisine() =>
-        _recettes.GroupBy(r => r.TypeCuisine?.Nom ?? "Inconnu").ToDictionary(g => g.Key, g => g.Count());
+    /// <summary>Répartition du nombre de recettes par catégorie.</summary>
+    public Dictionary<string, int> RepartitionCategorie()
+        => _recettes
+            .GroupBy(r => r.Categorie?.Nom ?? "Inconnue")
+            .ToDictionary(g => g.Key, g => g.Count());
 
-    public IEnumerable<Recette> TopRecettesCaloriques(int n) =>
-        _recettes.OrderByDescending(r => r.GetCaloriesTotales()).Take(n);
+    /// <summary>Répartition du nombre de recettes par type de cuisine.</summary>
+    public Dictionary<string, int> RepartitionTypeCuisine()
+        => _recettes
+            .GroupBy(r => r.TypeCuisine?.Nom ?? "Inconnue")
+            .ToDictionary(g => g.Key, g => g.Count());
+
+    /// <summary>Moyenne de calories par personne sur toutes les recettes.</summary>
+    public float MoyenneCaloriesParPersonne()
+        => _recettes.Count > 0
+            ? _recettes.Average(r => r.GetCaloriesParPersonne())
+            : 0f;
 }

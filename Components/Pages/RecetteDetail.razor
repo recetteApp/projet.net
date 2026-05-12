@@ -1,0 +1,236 @@
+@page "/recettes/{Id:int}"
+@using RecetteApp.Models
+@using RecetteApp.Services
+@attribute [Authorize]
+@inject IRecetteService Svc
+@inject NavigationManager Nav
+@rendermode InteractiveServer
+
+<PageTitle>@(_recette?.Titre ?? "Recette") – RecetteApp</PageTitle>
+
+@if (_chargement)
+{
+    <div class="text-center p-5">
+        <div class="spinner-border text-primary"></div>
+        <p class="mt-2">Chargement...</p>
+    </div>
+}
+else if (_recette == null)
+{
+    <div class="alert alert-danger">Recette introuvable.</div>
+    <button class="btn btn-secondary" @onclick='() => Nav.NavigateTo("/recettes")'>← Retour</button>
+}
+else
+{
+    <div class="page-header">
+        <div>
+            <h1>@_recette.Titre</h1>
+            <div class="d-flex gap-2 flex-wrap mt-1">
+                <span class="badge bg-secondary">@(_recette.Categorie?.Nom ?? "N/A")</span>
+                <span class="badge bg-info text-dark">@(_recette.TypeCuisine?.Nom ?? "N/A")</span>
+                <span class="badge @BadgeCalories">🔥 @_recette.GetCaloriesParPersonne().ToString("F0") kcal/pers</span>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary" @onclick='() => Nav.NavigateTo($"/recettes/{Id}/edit")'>
+                ✏️ Modifier
+            </button>
+            <button class="btn btn-outline-danger" @onclick="ConfirmerSuppression">
+                🗑️ Supprimer
+            </button>
+            <button class="btn btn-secondary" @onclick='() => Nav.NavigateTo("/recettes")'>
+                ← Retour
+            </button>
+        </div>
+    </div>
+
+    @if (_confirmerSupp)
+    {
+        <div class="alert alert-danger d-flex align-items-center gap-3 mb-4">
+            <span>⚠️ Voulez-vous vraiment supprimer cette recette ?</span>
+            <button class="btn btn-danger btn-sm" @onclick="Supprimer">Oui, supprimer</button>
+            <button class="btn btn-secondary btn-sm" @onclick="() => _confirmerSupp = false">Annuler</button>
+        </div>
+    }
+
+    <div class="row g-4">
+        <!-- Infos générales -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white fw-bold">📋 Informations générales</div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(_recette.Description))
+                    {
+                        <p class="text-muted">@_recette.Description</p>
+                    }
+                    <div class="row text-center my-3">
+                        <div class="col-4">
+                            <div class="stat-box">
+                                <div class="stat-value">@_recette.NbPersonnes</div>
+                                <div class="stat-label">personnes</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-box">
+                                <div class="stat-value">@_recette.GetCaloriesTotales().ToString("F0")</div>
+                                <div class="stat-label">kcal totales</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-box">
+                                <div class="stat-value">@_recette.GetCaloriesParPersonne().ToString("F0")</div>
+                                <div class="stat-label">kcal/pers</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(_recette.Etapes))
+                    {
+                        <hr/>
+                        <h5 class="fw-bold">📝 Étapes de préparation</h5>
+                        <div class="etapes-text">
+                            @foreach (var (etape, idx) in _recette.Etapes.Split('\n')
+                                        .Select((e, i) => (e.Trim(), i + 1))
+                                        .Where(x => !string.IsNullOrEmpty(x.Item1)))
+                            {
+                                <div class="etape-item">
+                                    <span class="etape-num">@idx</span>
+                                    <p>@etape</p>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Table des ingrédients -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white fw-bold">🥕 Ingrédients (@_recette.Ingredients.Count)</div>
+                <div class="card-body p-0">
+                    @if (_recette.Ingredients.Any())
+                    {
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Ingrédient</th>
+                                    <th class="text-end">Quantité</th>
+                                    <th class="text-end">Kcal/unité</th>
+                                    <th class="text-end">Kcal total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var ri in _recette.Ingredients)
+                                {
+                                    <tr>
+                                        <td><strong>@ri.Ingredient?.Nom</strong> <small class="text-muted">(@ri.Ingredient?.Unite)</small></td>
+                                        <td class="text-end">@ri.Quantite.ToString("F1")</td>
+                                        <td class="text-end">@ri.Ingredient?.CaloriesParUnite.ToString("F2")</td>
+                                        <td class="text-end"><strong>@ri.GetCaloriesTotales().ToString("F1")</strong></td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <td colspan="3" class="fw-bold text-end">Total calories :</td>
+                                    <td class="text-end fw-bold text-danger">@_recette.GetCaloriesTotales().ToString("F0") kcal</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    }
+                    else
+                    {
+                        <div class="p-3 text-center text-muted">Aucun ingrédient ajouté.
+                            <a href="/recettes/@Id/edit">Modifier la recette →</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Analyse nutritionnelle -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white fw-bold">🔬 Analyse nutritionnelle</div>
+                <div class="card-body text-center">
+                    <div class="cal-gauge-label">Calories par personne</div>
+                    <div class="cal-gauge-value @BadgeCalories-text">
+                        @_recette.GetCaloriesParPersonne().ToString("F0")
+                        <small>kcal</small>
+                    </div>
+                    <div class="progress mt-3" style="height: 12px;">
+                        <div class="progress-bar @ProgressBarColor"
+                             style="width: @Math.Min(_recette.GetCaloriesParPersonne() / 8, 100).ToString("F0")%">
+                        </div>
+                    </div>
+                    <small class="text-muted">Sur 800 kcal max (affichage)</small>
+                    <hr />
+                    <div class="row text-start mt-2">
+                        <div class="col-6">
+                            <small class="text-muted">Niveau calorique</small>
+                            <div><span class="badge @BadgeCalories">@NiveauCalorique</span></div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Créée le</small>
+                            <div class="small">@_recette.DateCreation.ToString("dd/MM/yyyy")</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    .stat-box { padding: 1rem; background: #f8f9fa; border-radius: 8px; }
+    .stat-value { font-size: 1.8rem; font-weight: 700; color: #2c3e50; }
+    .stat-label { font-size: 0.75rem; color: #6c757d; text-transform: uppercase; }
+    .etape-item { display: flex; gap: 1rem; align-items: flex-start; margin-bottom: 0.75rem; }
+    .etape-num { background: #0d6efd; color: white; border-radius: 50%; width: 28px; height: 28px;
+                 display: flex; align-items: center; justify-content: center; font-weight: bold;
+                 flex-shrink: 0; font-size: 0.85rem; }
+    .cal-gauge-label { font-size: 0.85rem; color: #6c757d; text-transform: uppercase; }
+    .cal-gauge-value { font-size: 3rem; font-weight: 800; }
+</style>
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private Recette? _recette;
+    private bool _chargement = true;
+    private bool _confirmerSupp = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _recette   = await Svc.GetRecetteByIdAsync(Id);
+        _chargement = false;
+    }
+
+    private string BadgeCalories => _recette?.GetCaloriesParPersonne() switch
+    {
+        < 300  => "bg-success",
+        < 600  => "bg-warning text-dark",
+        _      => "bg-danger"
+    };
+
+    private string ProgressBarColor => _recette?.GetCaloriesParPersonne() switch
+    {
+        < 300  => "bg-success",
+        < 600  => "bg-warning",
+        _      => "bg-danger"
+    };
+
+    private string NiveauCalorique => _recette?.GetCaloriesParPersonne() switch
+    {
+        < 300  => "Léger",
+        < 600  => "Modéré",
+        _      => "Calorique"
+    };
+
+    void ConfirmerSuppression() => _confirmerSupp = true;
+
+    async Task Supprimer()
+    {
+        await Svc.DeleteRecetteAsync(Id);
+        Nav.NavigateTo("/recettes");
+    }
+}

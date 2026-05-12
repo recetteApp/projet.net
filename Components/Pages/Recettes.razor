@@ -2,6 +2,7 @@
 @using RecetteApp.Models
 @using RecetteApp.Services
 @using RecetteApp.Components.UI
+@attribute [Authorize]
 @inject IRecetteService   Svc
 @inject NavigationManager Nav
 @rendermode InteractiveServer
@@ -13,28 +14,96 @@
     <button class="btn btn-primary" @onclick='() => Nav.NavigateTo("/recettes/new")'>+ Nouvelle recette</button>
 </div>
 
-<div class="filters card">
-    <input class="form-input" placeholder="🔍 Rechercher..." @bind="_recherche" @oninput="Filtrer" />
-    <select class="form-select" @bind="_filtreCategorie" @bind:after="Filtrer">
-        <option value="0">Toutes catégories</option>
-        @foreach (var c in _categories)
-        { <option value="@c.Id">@c.Nom</option> }
-    </select>
-    <select class="form-select" @bind="_filtreCuisine" @bind:after="Filtrer">
-        <option value="0">Tous types</option>
-        @foreach (var t in _types)
-        { <option value="@t.Id">@t.Nom</option> }
-    </select>
+<div class="filters card mb-4">
+    <div class="row g-2 align-items-center">
+        <div class="col-md-4">
+            <input class="form-input w-100" placeholder="🔍 Rechercher..." @bind="_recherche"
+                   @bind:event="oninput" @bind:after="Filtrer" />
+        </div>
+        <div class="col-md-3">
+            <select class="form-select" @bind="_filtreCategorie" @bind:after="Filtrer">
+                <option value="0">Toutes catégories</option>
+                @foreach (var c in _categories)
+                { <option value="@c.Id">@c.Nom</option> }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select class="form-select" @bind="_filtreCuisine" @bind:after="Filtrer">
+                <option value="0">Tous types</option>
+                @foreach (var t in _types)
+                { <option value="@t.Id">@t.Nom</option> }
+            </select>
+        </div>
+        <div class="col-md-2 text-end">
+            <button class="btn btn-outline-secondary" title="@(_cartes ? "Vue liste" : "Vue cartes")"
+                    @onclick="() => _cartes = !_cartes">
+                <i class="bi @(_cartes ? "bi-list-ul" : "bi-grid")"></i>
+                @(_cartes ? " Liste" : " Cartes")
+            </button>
+        </div>
+    </div>
 </div>
+
+<div class="mb-2 text-muted small">@_filtrees.Count recette(s) trouvée(s)</div>
 
 @if (_filtrees.Any())
 {
-    <div class="recettes-grid">
-        @foreach (var r in _filtrees)
-        {
-            <RecetteCard Recette="r" OnSupprimer="Supprimer" />
-        }
-    </div>
+    @if (_cartes)
+    {
+        <div class="recettes-grid">
+            @foreach (var r in _filtrees)
+            {
+                <RecetteCard Recette="r"
+                             OnVoir="GoToDetail"
+                             OnEditer="GoToEdit"
+                             OnSupprimer="Supprimer" />
+            }
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th @onclick='() => Trier("Titre")'      class="sortable-th">Titre @SortIcon("Titre")</th>
+                            <th @onclick='() => Trier("Categorie")'   class="sortable-th">Catégorie @SortIcon("Categorie")</th>
+                            <th @onclick='() => Trier("TypeCuisine")' class="sortable-th">Type @SortIcon("TypeCuisine")</th>
+                            <th>Personnes</th>
+                            <th @onclick='() => Trier("Calories")'    class="sortable-th text-end">Cal/pers @SortIcon("Calories")</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in _filtrees)
+                        {
+                            <tr>
+                                <td><strong>@r.Titre</strong></td>
+                                <td><span class="badge bg-secondary">@(r.Categorie?.Nom ?? "N/A")</span></td>
+                                <td><span class="badge bg-info text-dark">@(r.TypeCuisine?.Nom ?? "N/A")</span></td>
+                                <td><i class="bi bi-people"></i> @r.NbPersonnes</td>
+                                <td class="text-end">
+                                    <span class="badge @CalBadge(r)">@r.GetCaloriesParPersonne().ToString("F0") kcal</span>
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-primary" @onclick="() => GoToDetail(r.Id)" title="Voir">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary" @onclick="() => GoToEdit(r.Id)" title="Modifier">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" @onclick="() => Supprimer(r.Id)" title="Supprimer">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
 }
 else
 {
@@ -46,14 +115,21 @@ else
     </div>
 }
 
+<style>
+    .sortable-th { cursor: pointer; user-select: none; }
+    .sortable-th:hover { background: rgba(255,255,255,0.1); }
+</style>
+
 @code {
-    private List<Recette>    _toutes     = new();
-    private List<Recette>    _filtrees   = new();
-    private List<Categorie>  _categories = new();
-    private List<TypeCuisine>_types      = new();
+    private List<Recette>     _toutes     = new();
+    private List<Recette>     _filtrees   = new();
+    private List<Categorie>   _categories = new();
+    private List<TypeCuisine> _types      = new();
     private string _recherche       = "";
     private int    _filtreCategorie = 0;
     private int    _filtreCuisine   = 0;
+    private bool   _cartes          = true;
+    private string _sortCol = ""; private bool _sortAsc = true;
 
     protected override async Task OnInitializedAsync()
     {
@@ -65,15 +141,35 @@ else
 
     void Filtrer()
     {
-        _filtrees = _toutes
+        IEnumerable<Recette> q = _toutes
             .Where(r =>
                 (string.IsNullOrEmpty(_recherche) ||
                  r.Titre.Contains(_recherche, StringComparison.OrdinalIgnoreCase) ||
                  r.Description.Contains(_recherche, StringComparison.OrdinalIgnoreCase)) &&
                 (_filtreCategorie == 0 || r.CategorieId == _filtreCategorie) &&
-                (_filtreCuisine   == 0 || r.TypeCuisineId == _filtreCuisine))
-            .ToList();
+                (_filtreCuisine   == 0 || r.TypeCuisineId == _filtreCuisine));
+
+        _filtrees = (_sortCol switch
+        {
+            "Titre"      => _sortAsc ? q.OrderBy(r => r.Titre)                    : q.OrderByDescending(r => r.Titre),
+            "Categorie"  => _sortAsc ? q.OrderBy(r => r.Categorie?.Nom)           : q.OrderByDescending(r => r.Categorie?.Nom),
+            "TypeCuisine"=> _sortAsc ? q.OrderBy(r => r.TypeCuisine?.Nom)         : q.OrderByDescending(r => r.TypeCuisine?.Nom),
+            "Calories"   => _sortAsc ? q.OrderBy(r => r.GetCaloriesParPersonne()) : q.OrderByDescending(r => r.GetCaloriesParPersonne()),
+            _            => q.OrderByDescending(r => r.DateCreation)
+        }).ToList();
     }
+
+    void Trier(string col)
+    {
+        if (_sortCol == col) _sortAsc = !_sortAsc;
+        else { _sortCol = col; _sortAsc = true; }
+        Filtrer();
+    }
+
+    string SortIcon(string col) => _sortCol != col ? "" : _sortAsc ? " ▲" : " ▼";
+
+    void GoToDetail(int id) => Nav.NavigateTo($"/recettes/{id}");
+    void GoToEdit(int id)   => Nav.NavigateTo($"/recettes/{id}/edit");
 
     async Task Supprimer(int id)
     {
@@ -81,4 +177,11 @@ else
         _toutes = await Svc.GetAllRecettesAsync();
         Filtrer();
     }
+
+    string CalBadge(Recette r) => r.GetCaloriesParPersonne() switch
+    {
+        < 300  => "bg-success",
+        < 600  => "bg-warning text-dark",
+        _      => "bg-danger"
+    };
 }
