@@ -11,7 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+    .AddInteractiveServerComponents()
+    .AddCircuitOptions(o => o.DetailedErrors = true);
 
 builder.Services.AddScoped<IRecetteService, RecetteService>();
 builder.Services.AddScoped<UserCounterService>();
@@ -19,8 +20,6 @@ builder.Services.AddScoped<TooltipService>();
 builder.Services.AddScoped<DialogService>();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<ContextMenuService>();
-builder.Services.AddServerSideBlazor()
-    .AddCircuitOptions(o => o.DetailedErrors = true);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=recette.db";
 builder.Services.AddDbContext<AppDbContext>(options =>

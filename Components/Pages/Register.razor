@@ -3,6 +3,7 @@
 @attribute [AllowAnonymous]
 @inject UserCounterService UserSvc
 @inject NavigationManager  Nav
+@inject IJSRuntime JS
 @rendermode InteractiveServer
 
 <PageTitle>Inscription – RecetteApp</PageTitle>
@@ -72,9 +73,20 @@
         try
         {
             await UserSvc.InscrireAsync(_model.Nom, _model.Email, _model.MotDePasse);
-            _success = true;
-            _message = "Compte créé avec succès ! Redirection...";
-            Nav.NavigateTo("/login");
+
+            // Connexion automatique après inscription
+            var ok = await JS.InvokeAsync<bool>("authHelper.login", _model.Email, _model.MotDePasse);
+            if (ok)
+            {
+                // forceLoad pour que le cookie d'auth soit envoyé avec la prochaine requête
+                Nav.NavigateTo("/", forceLoad: true);
+            }
+            else
+            {
+                _success = true;
+                _message = "Compte créé ! Veuillez vous connecter.";
+                Nav.NavigateTo("/login");
+            }
         }
         catch (InvalidOperationException ex)
         {
