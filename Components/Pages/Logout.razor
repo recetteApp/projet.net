@@ -1,0 +1,16 @@
+@page "/logout"
+@attribute [AllowAnonymous]
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+@rendermode InteractiveServer
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("authHelper.logout");
+            Nav.NavigateTo("/login", forceLoad: true);
+        }
+    }
+}

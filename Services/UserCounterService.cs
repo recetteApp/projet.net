@@ -49,8 +49,12 @@ public class UserCounterService
 
     public async Task<bool> ConnecterAsync(string email, string motDePasse)
     {
+        // PasswordSignInAsync utilise le UserName, pas l'email
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user == null) return false;
+
         var result = await _signInManager.PasswordSignInAsync(
-            email, motDePasse, isPersistent: false, lockoutOnFailure: false);
+            user.UserName!, motDePasse, isPersistent: true, lockoutOnFailure: false);
         return result.Succeeded;
     }
 

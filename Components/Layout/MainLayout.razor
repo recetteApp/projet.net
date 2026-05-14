@@ -1,4 +1,4 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
 
 <div class="page">
     <div class="sidebar">
@@ -6,8 +6,15 @@
     </div>
 
     <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+        <div class="top-row px-4 d-flex justify-content-between align-items-center">
+            <span class="text-muted small">RecetteApp — Gestion de recettes culinaires</span>
+            <AuthorizeView>
+                <Authorized>
+                    <span class="text-muted small">
+                        👤 <strong>@context.User.Identity?.Name</strong>
+                    </span>
+                </Authorized>
+            </AuthorizeView>
         </div>
 
         <article class="content px-4">
@@ -17,7 +24,7 @@
 </div>
 
 <div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
+    Une erreur inattendue s'est produite.
+    <a href="." class="reload">Recharger</a>
     <span class="dismiss">🗙</span>
 </div>

@@ -1,95 +1,207 @@
 @page "/"
+@using RecetteApp.Models
 @using RecetteApp.Services
 @using RecetteApp.Components.UI
-@inject IRecetteService Svc
+@using Radzen
+@using Radzen.Blazor
+@attribute [Authorize]
+@inject IRecetteService RecetteSvc
+@inject NavigationManager Nav
 @rendermode InteractiveServer
 
-<PageTitle>Dashboard – RecetteApp</PageTitle>
+<PageTitle>Tableau de bord – RecetteApp</PageTitle>
 
-<div class="page-header">
-    <div>
-        <h1>📊 Dashboard</h1>
-        <p class="subtitle">Vue d'ensemble de vos recettes</p>
+<div class="container-fluid p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold">🍽️ Tableau de bord</h1>
+            <p class="text-muted mb-0">Vue d'ensemble de vos recettes et analyses nutritionnelles</p>
+        </div>
+        <button class="btn btn-success shadow-sm" @onclick='() => Nav.NavigateTo("/recettes/new")'>
+            <i class="bi bi-plus-circle"></i> Nouvelle recette
+        </button>
     </div>
+
+    @if (_stats == null)
+    {
+        <div class="text-center p-5">
+            <div class="spinner-border text-primary"></div>
+            <p class="mt-2">Chargement...</p>
+        </div>
+    }
+    else
+    {
+        <!-- KPIs -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <KpiCard Label="Total recettes" Value="@_stats.TotalRecettes.ToString()" Icon="📖" Color="primary" />
+            </div>
+            <div class="col-md-3 mb-3">
+                <KpiCard Label="Total ingrédients" Value="@_stats.TotalIngredients.ToString()" Icon="🥕" Color="success" />
+            </div>
+            <div class="col-md-3 mb-3">
+                <KpiCard Label="Moy. calories" Value="@($"{_stats.MoyenneCalories:F0} kcal")" Icon="🔥" Color="warning" />
+            </div>
+            <div class="col-md-3 mb-3">
+                <KpiCard Label="Recette top" Value="@_stats.RecetteTop" Icon="🏆" Color="danger" />
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Top 5 recettes caloriques -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white fw-bold">
+                        <i class="bi bi-bar-chart-fill me-2 text-danger"></i>Top 5 recettes caloriques
+                    </div>
+                    <div class="card-body">
+                        @if (_topRecettes.Any())
+                        {
+                            <RadzenChart>
+                                <RadzenColumnSeries Data="@_topRecettes"
+                                                    CategoryProperty="Titre"
+                                                    ValueProperty="CaloriesTotales"
+                                                    Title="Calories totales"
+                                                    Fill="#e74c3c" />
+                                <RadzenValueAxis Formatter="@(v => $"{v:F0} kcal")" />
+                            </RadzenChart>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info">Aucune recette disponible.</div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Répartition par catégorie -->
+            <div class="col-lg-3 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white fw-bold">
+                        <i class="bi bi-pie-chart-fill me-2 text-primary"></i>Par catégorie
+                    </div>
+                    <div class="card-body">
+                        @if (_repartitionCategorie.Any())
+                        {
+                            <RadzenChart Style="height: 220px;">
+                                <RadzenDonutSeries Data="@_repartitionCategorie"
+                                                   CategoryProperty="Nom"
+                                                   ValueProperty="Compte"
+                                                   TItem="RepartitionItem" />
+                            </RadzenChart>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info">Aucune donnée.</div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Répartition par type de cuisine -->
+            <div class="col-lg-3 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white fw-bold">
+                        <i class="bi bi-globe me-2 text-success"></i>Par cuisine
+                    </div>
+                    <div class="card-body">
+                        @if (_repartitionCuisine.Any())
+                        {
+                            <RadzenChart Style="height: 220px;">
+                                <RadzenDonutSeries Data="@_repartitionCuisine"
+                                                   CategoryProperty="Nom"
+                                                   ValueProperty="Compte"
+                                                   TItem="RepartitionItem" />
+                            </RadzenChart>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info">Aucune donnée.</div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dernières recettes -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-clock-history me-2 text-secondary"></i>Dernières recettes ajoutées</span>
+                <a href="/recettes" class="btn btn-sm btn-outline-primary">Voir toutes</a>
+            </div>
+            <div class="card-body p-0">
+                @if (_dernieres.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Titre</th>
+                                    <th>Catégorie</th>
+                                    <th>Type cuisine</th>
+                                    <th>Personnes</th>
+                                    <th class="text-end">Cal/pers</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var r in _dernieres)
+                                {
+                                    <tr>
+                                        <td><strong>@r.Titre</strong></td>
+                                        <td><span class="badge bg-secondary">@(r.Categorie?.Nom ?? "N/A")</span></td>
+                                        <td><span class="badge bg-info text-dark">@(r.TypeCuisine?.Nom ?? "N/A")</span></td>
+                                        <td>@r.NbPersonnes</td>
+                                        <td class="text-end"><strong>@r.GetCaloriesParPersonne().ToString("F0")</strong> kcal</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary"
+                                                    @onclick='() => Nav.NavigateTo($"/recettes/{r.Id}")'>
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="p-3 text-center text-muted">Aucune recette. <a href="/recettes/new">Créez votre première recette →</a></div>
+                }
+            </div>
+        </div>
+    }
 </div>
 
-@if (_stats is null)
-{
-    <div class="loading">Chargement...</div>
-}
-else
-{
-    <div class="stats-grid">
-        <KpiCard Value="@_stats.TotalRecettes.ToString()"       Label="Recettes"       Icon="📖" Color="blue"   />
-        <KpiCard Value="@_stats.TotalIngredients.ToString()"    Label="Ingrédients"    Icon="🥕" Color="green"  />
-        <KpiCard Value="@($"{_stats.MoyenneCalories:F0} kcal")" Label="Moy. calorique" Icon="🔥" Color="orange" />
-        <KpiCard Value="@_stats.RecetteTop"                     Label="Recette top"    Icon="🏆" Color="red"    />
-    </div>
-
-    <div class="dashboard-grid">
-        <div class="card">
-            <h2>🏆 Top 5 recettes caloriques</h2>
-            @if (_top.Any())
-            {
-                <RecetteTable Recettes="_top"
-                              OnVoir="VoirRecette"
-                              OnSupprimer="Supprimer" />
-            }
-            else { <p class="empty">Aucune recette.</p> }
-        </div>
-
-        <div class="card">
-            <h2>📂 Par catégorie</h2>
-            @foreach (var kv in _parCat)
-            {
-                <div class="bar-row">
-                    <span class="bar-label">@kv.Key</span>
-                    <div class="bar-track">
-                        <div class="bar-fill" style="width:@(kv.Value * 100 / Math.Max(_parCat.Values.Max(), 1))%"></div>
-                    </div>
-                    <span class="bar-count">@kv.Value</span>
-                </div>
-            }
-        </div>
-
-        <div class="card">
-            <h2>🌍 Par type de cuisine</h2>
-            @foreach (var kv in _parCuisine)
-            {
-                <div class="bar-row">
-                    <span class="bar-label">@kv.Key</span>
-                    <div class="bar-track">
-                        <div class="bar-fill cuisine" style="width:@(kv.Value * 100 / Math.Max(_parCuisine.Values.Max(), 1))%"></div>
-                    </div>
-                    <span class="bar-count">@kv.Value</span>
-                </div>
-            }
-        </div>
-    </div>
-}
-
 @code {
-    [Inject] NavigationManager Nav { get; set; } = null!;
-
-    private StatistiquesGlobales?            _stats      = null;
-    private List<RecetteApp.Models.Recette>  _top        = new();
-    private Dictionary<string, int>          _parCat     = new();
-    private Dictionary<string, int>          _parCuisine = new();
+    private StatistiquesGlobales? _stats;
+    private List<RecetteCalItem>  _topRecettes             = new();
+    private List<RepartitionItem> _repartitionCategorie    = new();
+    private List<RepartitionItem> _repartitionCuisine      = new();
+    private List<Recette>         _dernieres               = new();
 
     protected override async Task OnInitializedAsync()
     {
-        _stats      = await Svc.GetStatsAsync();
-        _top        = await Svc.TopCaloriquesAsync(5);
-        _parCat     = await Svc.RepartitionCategorieAsync();
-        _parCuisine = await Svc.RepartitionTypeCuisineAsync();
+        _stats = await RecetteSvc.GetStatsAsync();
+
+        var top = await RecetteSvc.TopCaloriquesAsync(5);
+        _topRecettes = top.Select(r => new RecetteCalItem
+        {
+            Titre = r.Titre,
+            CaloriesTotales = (double)r.GetCaloriesTotales()
+        }).ToList();
+
+        var cat = await RecetteSvc.RepartitionCategorieAsync();
+        _repartitionCategorie = cat.Select(kv => new RepartitionItem { Nom = kv.Key, Compte = kv.Value }).ToList();
+
+        var cui = await RecetteSvc.RepartitionTypeCuisineAsync();
+        _repartitionCuisine = cui.Select(kv => new RepartitionItem { Nom = kv.Key, Compte = kv.Value }).ToList();
+
+        var toutes = await RecetteSvc.GetAllRecettesAsync();
+        _dernieres = toutes.Take(5).ToList();
     }
 
-    async Task Supprimer(int id)
-    {
-        await Svc.DeleteRecetteAsync(id);
-        _top   = await Svc.TopCaloriquesAsync(5);
-        _stats = await Svc.GetStatsAsync();
-    }
-
-    void VoirRecette(int id) => Nav.NavigateTo($"/recettes/{id}");
+    record RecetteCalItem  { public string Titre { get; init; } = ""; public double CaloriesTotales { get; init; } }
+    record RepartitionItem { public string Nom   { get; init; } = ""; public int    Compte          { get; init; } }
 }

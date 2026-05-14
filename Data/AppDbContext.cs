@@ -66,8 +66,23 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
             new Ingredient { Id = 10, Nom = "Riz",              Unite = "g",      CaloriesParUnite = 3.60f },
             new Ingredient { Id = 11, Nom = "Oignon",           Unite = "g",      CaloriesParUnite = 0.40f },
             new Ingredient { Id = 12, Nom = "Ail",              Unite = "gousse", CaloriesParUnite = 4.5f  },
-            new Ingredient { Id = 13, Nom = "Sel",              Unite = "g",      CaloriesParUnite = 0f    },
-            new Ingredient { Id = 14, Nom = "Poivre",           Unite = "g",      CaloriesParUnite = 2.51f },
-            new Ingredient { Id = 15, Nom = "Concentre tomate", Unite = "g",      CaloriesParUnite = 0.82f });
+            new Ingredient { Id = 13, Nom = "Sel",              Unite = "g",        CaloriesParUnite = 0f    },
+            new Ingredient { Id = 14, Nom = "Poivre",           Unite = "g",        CaloriesParUnite = 2.51f },
+            new Ingredient { Id = 15, Nom = "Concentre tomate", Unite = "g",        CaloriesParUnite = 0.82f },
+            new Ingredient { Id = 16, Nom = "Huile végétale",   Unite = "cuillère", CaloriesParUnite = 45f   },
+            new Ingredient { Id = 17, Nom = "Persil",           Unite = "g",        CaloriesParUnite = 0.36f },
+            new Ingredient { Id = 18, Nom = "Coriandre",        Unite = "g",        CaloriesParUnite = 0.23f },
+            new Ingredient { Id = 19, Nom = "Cumin",            Unite = "cuillère", CaloriesParUnite = 22.5f },
+            new Ingredient { Id = 20, Nom = "Paprika",          Unite = "cuillère", CaloriesParUnite = 17f   },
+            new Ingredient { Id = 21, Nom = "Curcuma",          Unite = "cuillère", CaloriesParUnite = 12.5f },
+            new Ingredient { Id = 22, Nom = "Cannelle",         Unite = "cuillère", CaloriesParUnite = 10.5f },
+            new Ingredient { Id = 23, Nom = "Gingembre",        Unite = "cuillère", CaloriesParUnite = 8f    },
+            new Ingredient { Id = 24, Nom = "Carotte",          Unite = "g",        CaloriesParUnite = 0.41f },
+            new Ingredient { Id = 25, Nom = "Pomme de terre",   Unite = "g",        CaloriesParUnite = 0.77f },
+            new Ingredient { Id = 26, Nom = "Courgette",        Unite = "g",        CaloriesParUnite = 0.17f },
+            new Ingredient { Id = 27, Nom = "Aubergine",        Unite = "g",        CaloriesParUnite = 0.25f },
+            new Ingredient { Id = 28, Nom = "Poivron",          Unite = "g",        CaloriesParUnite = 0.31f },
+            new Ingredient { Id = 29, Nom = "Fromage râpé",     Unite = "g",        CaloriesParUnite = 4.02f },
+            new Ingredient { Id = 30, Nom = "Crème fraîche",    Unite = "ml",       CaloriesParUnite = 2.95f });
     }
 }

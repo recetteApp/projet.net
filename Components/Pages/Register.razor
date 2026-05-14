@@ -1,7 +1,9 @@
 @page "/register"
 @using RecetteApp.Services
+@attribute [AllowAnonymous]
 @inject UserCounterService UserSvc
 @inject NavigationManager  Nav
+@inject IJSRuntime JS
 @rendermode InteractiveServer
 
 <PageTitle>Inscription – RecetteApp</PageTitle>
@@ -19,26 +21,34 @@
             <div class="alert @(_success ? "alert-success" : "alert-danger")">@_message</div>
         }
 
-        <div class="form-group">
-            <label>Nom</label>
-            <input class="form-input" @bind="_nom" placeholder="Votre nom" />
-        </div>
-        <div class="form-group">
-            <label>Email</label>
-            <input class="form-input" type="email" @bind="_email" placeholder="votre@email.com" />
-        </div>
-        <div class="form-group">
-            <label>Mot de passe</label>
-            <input class="form-input" type="password" @bind="_motDePasse" placeholder="Min. 6 caractères" />
-        </div>
-        <div class="form-group">
-            <label>Confirmer le mot de passe</label>
-            <input class="form-input" type="password" @bind="_confirm" placeholder="••••••••" />
-        </div>
+        <EditForm Model="_model" OnValidSubmit="Inscrire">
+            <DataAnnotationsValidator />
 
-        <div class="form-actions">
-            <button class="btn btn-primary w-full" @onclick="Inscrire">Créer le compte</button>
-        </div>
+            <div class="form-group">
+                <label>Nom</label>
+                <InputText class="form-input" @bind-Value="_model.Nom" placeholder="Votre nom" />
+                <ValidationMessage For="() => _model.Nom" />
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <InputText class="form-input" type="email" @bind-Value="_model.Email" placeholder="votre@email.com" />
+                <ValidationMessage For="() => _model.Email" />
+            </div>
+            <div class="form-group">
+                <label>Mot de passe</label>
+                <InputText class="form-input" type="password" @bind-Value="_model.MotDePasse" placeholder="Min. 6 caractères" />
+                <ValidationMessage For="() => _model.MotDePasse" />
+            </div>
+            <div class="form-group">
+                <label>Confirmer le mot de passe</label>
+                <InputText class="form-input" type="password" @bind-Value="_model.Confirm" placeholder="••••••••" />
+                <ValidationMessage For="() => _model.Confirm" />
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary w-full">Créer le compte</button>
+            </div>
+        </EditForm>
 
         <p class="auth-footer">
             Déjà un compte ? <a href="/login">Se connecter</a>
@@ -47,36 +57,59 @@
 </div>
 
 @code {
-    private string _nom       = "";
-    private string _email     = "";
-    private string _motDePasse = "";
-    private string _confirm   = "";
-    private string _message   = "";
-    private bool   _success   = false;
+    private RegisterModel _model = new();
+    private string _message = "";
+    private bool   _success = false;
 
     async Task Inscrire()
     {
-        if (string.IsNullOrWhiteSpace(_nom) || string.IsNullOrWhiteSpace(_email) ||
-            string.IsNullOrWhiteSpace(_motDePasse))
-        { _message = "Tous les champs sont obligatoires."; _success = false; return; }
-
-        if (_motDePasse != _confirm)
-        { _message = "Les mots de passe ne correspondent pas."; _success = false; return; }
-
-        if (_motDePasse.Length < 6)
-        { _message = "Le mot de passe doit contenir au moins 6 caractères."; _success = false; return; }
+        if (_model.MotDePasse != _model.Confirm)
+        {
+            _message = "Les mots de passe ne correspondent pas.";
+            _success = false;
+            return;
+        }
 
         try
         {
-            await UserSvc.InscrireAsync(_nom, _email, _motDePasse);
-            _success = true;
-            _message = "Compte créé avec succès ! Redirection...";
-            Nav.NavigateTo("/login");
+            await UserSvc.InscrireAsync(_model.Nom, _model.Email, _model.MotDePasse);
+
+            // Connexion automatique après inscription
+            var ok = await JS.InvokeAsync<bool>("authHelper.login", _model.Email, _model.MotDePasse);
+            if (ok)
+            {
+                // forceLoad pour que le cookie d'auth soit envoyé avec la prochaine requête
+                Nav.NavigateTo("/", forceLoad: true);
+            }
+            else
+            {
+                _success = true;
+                _message = "Compte créé ! Veuillez vous connecter.";
+                Nav.NavigateTo("/login");
+            }
         }
         catch (InvalidOperationException ex)
         {
             _success = false;
             _message = ex.Message;
         }
+    }
+
+    class RegisterModel
+    {
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Le nom est obligatoire.")]
+        [System.ComponentModel.DataAnnotations.MaxLength(100)]
+        public string Nom { get; set; } = "";
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "L'email est obligatoire.")]
+        [System.ComponentModel.DataAnnotations.EmailAddress(ErrorMessage = "Format d'email invalide.")]
+        public string Email { get; set; } = "";
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Le mot de passe est obligatoire.")]
+        [System.ComponentModel.DataAnnotations.MinLength(6, ErrorMessage = "Minimum 6 caractères.")]
+        public string MotDePasse { get; set; } = "";
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "La confirmation est obligatoire.")]
+        public string Confirm { get; set; } = "";
     }
 }

@@ -1,0 +1,26 @@
+# Build Folders
+bin/
+obj/
+
+# VS Code
+.vscode/
+
+# User-specific files
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+
+# NuGet
+*.nupkg
+packages/
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# Other generated files
+*.dbmdl
+*.bak
+*.backup
+*.log
+*.vs/

@@ -3,47 +3,122 @@
 @using RecetteApp.Models
 @namespace RecetteApp.Components.UI
 
-<div class="card text-white bg-primary h-100">
-    <div class="card-body">
-        <div class="d-flex justify-content-between align-items-start">
-            <div>
-                <h5 class="card-title mb-0">@Recette.Titre</h5>
-                <p class="card-subtitle text-light mb-2">@(Recette.Categorie?.Nom ?? "Catégorie inconnue")</p>
-                <p class="card-text small">@(Recette.Description?.Length > 50 ? Recette.Description.Substring(0, 50) + "..." : Recette.Description)</p>
-            </div>
-            <!-- Affichage de l'icône Bootstrap Icons (bi) -->
-            <i class="bi bi-dish" style="font-size: 2.5rem; opacity: 0.5;"></i>
-        </div>
-        <div class="recette-meta mt-3">
-            <div class="row text-center">
-                <div class="col-6">
-                    <small class="text-light d-block">Personnes</small>
-                    <strong>@Recette.NbPersonnes</strong>
-                </div>
-                <div class="col-6">
-                    <small class="text-light d-block">Calories/pers</small>
-                    <strong>@Recette.GetCaloriesParPersonne().ToString("F0")</strong>
-                </div>
+<div class="recette-card h-100">
+    <div class="recette-card-header">
+        <div>
+            <h5 class="recette-card-title">@Recette.Titre</h5>
+            <div class="d-flex gap-1 flex-wrap mt-1">
+                <span class="badge bg-light text-dark">@(Recette.Categorie?.Nom ?? "N/A")</span>
+                <span class="badge bg-light text-info">@(Recette.TypeCuisine?.Nom ?? "N/A")</span>
             </div>
         </div>
-        <div class="mt-3">
-            <button class="btn btn-sm btn-outline-light" @onclick="() => OnVoir.InvokeAsync(Recette.Id)">
-                <i class="bi bi-eye"></i> Voir
-            </button>
-            <button class="btn btn-sm btn-outline-danger" @onclick="() => OnSupprimer.InvokeAsync(Recette.Id)">
-                <i class="bi bi-trash"></i> Supprimer
-            </button>
+        <i class="bi bi-dish recette-card-icon"></i>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Recette.Description))
+    {
+        <p class="recette-card-desc">
+            @(Recette.Description.Length > 70 ? Recette.Description[..70] + "…" : Recette.Description)
+        </p>
+    }
+
+    <div class="recette-card-meta">
+        <div class="recette-card-stat">
+            <small>👥 Personnes</small>
+            <strong>@Recette.NbPersonnes</strong>
         </div>
+        <div class="recette-card-stat">
+            <small>🔥 Cal/pers</small>
+            <strong class="@CalorieClass">@Recette.GetCaloriesParPersonne().ToString("F0") kcal</strong>
+        </div>
+        <div class="recette-card-stat">
+            <span class="badge @CalorieBadge">@NiveauCalorique</span>
+        </div>
+    </div>
+
+    <div class="recette-card-actions">
+        <button class="btn btn-sm btn-primary" @onclick="() => OnVoir.InvokeAsync(Recette.Id)">
+            <i class="bi bi-eye"></i> Voir
+        </button>
+        <button class="btn btn-sm btn-outline-secondary" @onclick="() => OnEditer.InvokeAsync(Recette.Id)">
+            <i class="bi bi-pencil"></i> Modifier
+        </button>
+        <button class="btn btn-sm btn-outline-danger ms-auto" @onclick="() => OnSupprimer.InvokeAsync(Recette.Id)">
+            <i class="bi bi-trash"></i>
+        </button>
     </div>
 </div>
 
+<style>
+    .recette-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        padding: 1.25rem;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        box-shadow: 0 4px 15px rgba(102,126,234,0.3);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .recette-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(102,126,234,0.4);
+    }
+    .recette-card-header { display: flex; justify-content: space-between; align-items: flex-start; }
+    .recette-card-title  { font-size: 1.05rem; font-weight: 700; margin: 0; }
+    .recette-card-icon   { font-size: 2rem; opacity: 0.4; }
+    .recette-card-desc   { font-size: 0.83rem; opacity: 0.85; margin: 0; line-height: 1.4; }
+    .recette-card-meta   { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;
+                           background: rgba(255,255,255,0.15); border-radius: 8px; padding: 0.6rem; }
+    .recette-card-stat   { display: flex; flex-direction: column; align-items: center; flex: 1; }
+    .recette-card-stat small { font-size: 0.7rem; opacity: 0.8; }
+    .recette-card-stat strong { font-size: 0.95rem; }
+    .recette-card-actions { display: flex; gap: 0.5rem; align-items: center; margin-top: auto; }
+</style>
+
 @code {
-    [Parameter]
-    public Recette Recette { get; set; } = new();
+    [Parameter] public Recette Recette { get; set; } = new();
+    [Parameter] public EventCallback<int> OnVoir     { get; set; }
+    [Parameter] public EventCallback<int> OnEditer   { get; set; }
+    [Parameter] public EventCallback<int> OnSupprimer { get; set; }
 
-    [Parameter]
-    public EventCallback<int> OnVoir { get; set; }
+    private string CalorieBadge
+    {
+        get
+        {
+            var calories = Recette.GetCaloriesParPersonne();
+            return calories < 300
+                ? "bg-success"
+                : calories < 600
+                    ? "bg-warning text-dark"
+                    : "bg-danger";
+        }
+    }
 
-    [Parameter]
-    public EventCallback<int> OnSupprimer { get; set; }
+    private string CalorieClass
+    {
+        get
+        {
+            var calories = Recette.GetCaloriesParPersonne();
+            return calories < 300
+                ? "text-success-light"
+                : calories < 600
+                    ? "text-warning-light"
+                    : "text-danger-light";
+        }
+    }
+
+    private string NiveauCalorique
+    {
+        get
+        {
+            var calories = Recette.GetCaloriesParPersonne();
+            return calories < 300
+                ? "Léger"
+                : calories < 600
+                    ? "Modéré"
+                    : "Calorique";
+        }
+    }
 }
