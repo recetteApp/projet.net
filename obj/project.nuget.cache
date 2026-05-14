@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "x3eWPCgmSk0=",
+  "dgSpecHash": "l8WkQvEjyPk=",
   "success": true,
   "projectFilePath": "C:\\Users\\BYR GAMER\\projet.net\\RecetteApp.csproj",
   "expectedPackageFiles": [
@@ -8,7 +8,7 @@
     "C:\\Users\\BYR GAMER\\.nuget\\packages\\azure.identity\\1.14.2\\azure.identity.1.14.2.nupkg.sha512",
     "C:\\Users\\BYR GAMER\\.nuget\\packages\\dartsassbuilder\\1.1.0\\dartsassbuilder.1.1.0.nupkg.sha512",
     "C:\\Users\\BYR GAMER\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
-    "C:\\Users\\BYR GAMER\\.nuget\\packages\\microsoft.aspnetcore.app.internal.assets\\10.0.7\\microsoft.aspnetcore.app.internal.assets.10.0.7.nupkg.sha512",
+    "C:\\Users\\BYR GAMER\\.nuget\\packages\\microsoft.aspnetcore.app.internal.assets\\10.0.8\\microsoft.aspnetcore.app.internal.assets.10.0.8.nupkg.sha512",
     "C:\\Users\\BYR GAMER\\.nuget\\packages\\microsoft.aspnetcore.identity.entityframeworkcore\\10.0.0\\microsoft.aspnetcore.identity.entityframeworkcore.10.0.0.nupkg.sha512",
     "C:\\Users\\BYR GAMER\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\8.0.0\\microsoft.bcl.asyncinterfaces.8.0.0.nupkg.sha512",
     "C:\\Users\\BYR GAMER\\.nuget\\packages\\microsoft.bcl.cryptography\\9.0.4\\microsoft.bcl.cryptography.9.0.4.nupkg.sha512",

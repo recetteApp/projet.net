@@ -430,8 +430,6 @@ C:\Users\BYR GAMER\projet.net\obj\Debug\net10.0\compressed\si85ssxiov-{0}-h1s4si
 C:\Users\BYR GAMER\projet.net\obj\Debug\net10.0\compressed\1ccgd5p1b4-{0}-4d85u1mtcx-4d85u1mtcx.gz
 C:\Users\BYR GAMER\projet.net\obj\Debug\net10.0\compressed\jp6qxcaru6-{0}-0j3bgjxly4-0j3bgjxly4.gz
 C:\Users\BYR GAMER\projet.net\obj\Debug\net10.0\compressed\3llvx79a1v-{0}-abdmv1u4y3-abdmv1u4y3.gz
-C:\Users\BYR GAMER\projet.net\obj\Debug\net10.0\compressed\sm1ewita81-{0}-hwaxidwiwj-hwaxidwiwj.gz
-C:\Users\BYR GAMER\projet.net\obj\Debug\net10.0\compressed\a4y7mb3r5z-{0}-xbbil6v7co-xbbil6v7co.gz
 C:\Users\BYR GAMER\projet.net\obj\Debug\net10.0\compressed\15a8q1usit-{0}-j6hlsrh01x-j6hlsrh01x.gz
 C:\Users\BYR GAMER\projet.net\obj\Debug\net10.0\compressed\r8w0xg7zea-{0}-j6hlsrh01x-j6hlsrh01x.gz
 C:\Users\BYR GAMER\projet.net\obj\Debug\net10.0\staticwebassets.build.json
@@ -476,3 +474,5 @@ C:\Users\BYR GAMER\projet.net\obj\Debug\net10.0\compressed\tyl999z8ld-{0}-rtz31m
 C:\Users\BYR GAMER\projet.net\obj\Debug\net10.0\compressed\r9w1mufl9l-{0}-7bt2cgjiuc-7bt2cgjiuc.gz
 C:\Users\BYR GAMER\projet.net\obj\Debug\net10.0\compressed\i1901ftr2x-{0}-kp0ueqs315-kp0ueqs315.gz
 C:\Users\BYR GAMER\projet.net\obj\Debug\net10.0\compressed\6xb9o06z95-{0}-lelrhrgsc9-lelrhrgsc9.gz
+C:\Users\BYR GAMER\projet.net\obj\Debug\net10.0\compressed\sm1ewita81-{0}-ej96puwv3k-ej96puwv3k.gz
+C:\Users\BYR GAMER\projet.net\obj\Debug\net10.0\compressed\a4y7mb3r5z-{0}-cj5793hgrt-cj5793hgrt.gz
