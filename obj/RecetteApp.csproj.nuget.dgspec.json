@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\BYR GAMER\\projet.net\\RecetteApp.csproj": {}
+    "C:\\Users\\BYR GAMER\\projet.net\\RecetteApp.csproj": {}
   },
   "projects": {
-    "c:\\Users\\BYR GAMER\\projet.net\\RecetteApp.csproj": {
+    "C:\\Users\\BYR GAMER\\projet.net\\RecetteApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\BYR GAMER\\projet.net\\RecetteApp.csproj",
+        "projectUniqueName": "C:\\Users\\BYR GAMER\\projet.net\\RecetteApp.csproj",
         "projectName": "RecetteApp",
-        "projectPath": "c:\\Users\\BYR GAMER\\projet.net\\RecetteApp.csproj",
+        "projectPath": "C:\\Users\\BYR GAMER\\projet.net\\RecetteApp.csproj",
         "packagesPath": "C:\\Users\\BYR GAMER\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\BYR GAMER\\projet.net\\obj\\",
+        "outputPath": "C:\\Users\\BYR GAMER\\projet.net\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\BYR GAMER\\AppData\\Roaming\\NuGet\\NuGet.Config"

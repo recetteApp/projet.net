@@ -20,5 +20,10 @@ public class RecetteIngredient
     [Range(0.01, float.MaxValue, ErrorMessage = "La quantité doit être supérieure à 0.")]
     public float Quantite { get; set; }
 
+    // Propriétés calculées pour les quantités par personne
+    public float QuantiteParPersonne => (Recette?.NbPersonnes ?? 1) > 0 ? Quantite / (Recette?.NbPersonnes ?? 1) : Quantite;
+    public float GetQuantitePourPersonnes(int nbPersonnes) => QuantiteParPersonne * nbPersonnes;
+
     public float GetCaloriesTotales() => Quantite * (Ingredient?.CaloriesParUnite ?? 0f);
+    public float GetCaloriesParPersonne() => QuantiteParPersonne * (Ingredient?.CaloriesParUnite ?? 0f);
 }

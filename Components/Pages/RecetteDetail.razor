@@ -123,7 +123,10 @@ else
                                 {
                                     <tr>
                                         <td><strong>@ri.Ingredient?.Nom</strong> <small class="text-muted">(@ri.Ingredient?.Unite)</small></td>
-                                        <td class="text-end">@ri.Quantite.ToString("F1")</td>
+                                        <td class="text-end">
+                                            @ri.Quantite.ToString("F1") 
+                                            <small class="text-muted d-block">(@ri.QuantiteParPersonne.ToString("F2") par pers.)</small>
+                                        </td>
                                         <td class="text-end">@ri.Ingredient?.CaloriesParUnite.ToString("F2")</td>
                                         <td class="text-end"><strong>@ri.GetCaloriesTotales().ToString("F1")</strong></td>
                                     </tr>

@@ -34,6 +34,23 @@ public class Recette
 
     public float GetCaloriesTotales()     => Ingredients.Sum(ri => ri.GetCaloriesTotales());
     public float GetCaloriesParPersonne() => NbPersonnes > 0 ? GetCaloriesTotales() / NbPersonnes : 0f;
+    
+    // Méthode pour ajuster les quantités quand le nombre de personnes change
+    public void AjusterQuantitesPourNouvellesPersonnes(int nouvellesPersonnes)
+    {
+        if (nouvellesPersonnes <= 0 || nouvellesPersonnes == NbPersonnes) return;
+        
+        int anciennesPersonnes = NbPersonnes;
+        NbPersonnes = nouvellesPersonnes;
+        
+        // Recalculer toutes les quantités pour maintenir les proportions par personne
+        foreach (var ri in Ingredients)
+        {
+            // La quantité totale doit être ajustée proportionnellement
+            ri.Quantite = (ri.Quantite / anciennesPersonnes) * nouvellesPersonnes;
+        }
+    }
+    
     public void  AjouterIngredient(RecetteIngredient ri) { ri.RecetteId = Id; Ingredients.Add(ri); }
     public void  RetirerIngredient(RecetteIngredient ri) => Ingredients.Remove(ri);
 }

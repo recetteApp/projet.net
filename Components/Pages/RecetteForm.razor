@@ -62,8 +62,17 @@ else
                                 <ValidationMessage For="() => _recette.TypeCuisineId" />
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label fw-semibold">Personnes *</label>
-                                <InputNumber class="form-control" @bind-Value="_recette.NbPersonnes" min="1" max="50" />
+                                <label class="form-label fw-semibold">Personnes * <small class="text-muted">(quantités ajustées auto.)</small></label>
+                                <div class="input-group">
+                                    <button type="button" class="btn btn-outline-secondary" 
+                                            @onclick="() => ModifierNbPersonnes(-1)" disabled="@(_recette.NbPersonnes <= 1)">
+                                        −</button>
+                                    <InputNumber class="form-control text-center" @bind-Value="_recette.NbPersonnes"
+                                                 @bind:after="AjusterQuantitesPourPersonnes" min="1" max="50" />
+                                    <button type="button" class="btn btn-outline-secondary" 
+                                            @onclick="() => ModifierNbPersonnes(1)">
+                                        +</button>
+                                </div>
                                 <ValidationMessage For="() => _recette.NbPersonnes" />
                             </div>
                         </div>
@@ -167,7 +176,10 @@ else
                                         {
                                             <tr>
                                                 <td>@ri.Ingredient?.Nom</td>
-                                                <td class="text-end">@ri.Quantite.ToString("F1") @ri.Ingredient?.Unite</td>
+                                                <td class="text-end">
+                                                    @ri.Quantite.ToString("F1") 
+                                                    <small class="text-muted d-block">(@ri.QuantiteParPersonne.ToString("F2")/pers.)</small>
+                                                </td>
                                                 <td class="text-end">@ri.GetCaloriesTotales().ToString("F0")</td>
                                                 <td class="text-end">
                                                     <button class="btn btn-danger btn-sm py-0"
@@ -228,6 +240,8 @@ else
             var r = await Svc.GetRecetteByIdAsync(Id.Value);
             if (r != null) _recette = r;
         }
+        
+        _ancienNbPersonnes = _recette.NbPersonnes;
 
         _chargement = false;
     }
@@ -309,6 +323,35 @@ else
         catch (Exception ex)
         {
             _msgIng = $"Erreur : {ex.Message}";
+        }
+    }
+
+    private int _ancienNbPersonnes = 4;
+
+    async Task ModifierNbPersonnes(int delta)
+    {
+        var nouveauNb = Math.Max(1, _recette.NbPersonnes + delta);
+        if (nouveauNb == _recette.NbPersonnes) return;
+
+        _recette.NbPersonnes = nouveauNb;
+        await AjusterQuantitesPourPersonnes();
+    }
+
+    async Task AjusterQuantitesPourPersonnes()
+    {
+        if (_recette.NbPersonnes != _ancienNbPersonnes && _recette.Ingredients.Any())
+        {
+            // Recalculer les quantités pour le nouveau nombre de personnes
+            foreach (var ri in _recette.Ingredients)
+            {
+                ri.Quantite = (ri.Quantite / _ancienNbPersonnes) * _recette.NbPersonnes;
+            }
+            _ancienNbPersonnes = _recette.NbPersonnes;
+            StateHasChanged();
+        }
+        else
+        {
+            _ancienNbPersonnes = _recette.NbPersonnes;
         }
     }
 

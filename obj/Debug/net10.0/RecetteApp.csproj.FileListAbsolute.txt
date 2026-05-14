@@ -280,5 +280,4 @@ C:\Users\BYR GAMER\projet.net\obj\Debug\net10.0\refint\RecetteApp.dll
 C:\Users\BYR GAMER\projet.net\obj\Debug\net10.0\RecetteApp.pdb
 C:\Users\BYR GAMER\projet.net\obj\Debug\net10.0\RecetteApp.genruntimeconfig.cache
 C:\Users\BYR GAMER\projet.net\obj\Debug\net10.0\ref\RecetteApp.dll
-C:\Users\BYR GAMER\projet.net\obj\Debug\net10.0\compressed\861u1178sy-{0}-1kiss6qf41-1kiss6qf41.gz
 c:\Users\BYR GAMER\projet.net\obj\Debug\net10.0\compressed\861u1178sy-{0}-wsdlrcz8li-wsdlrcz8li.gz
